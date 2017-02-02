@@ -1,0 +1,41 @@
+<resources>
+
+    <!--JSON KEYS-->
+
+    <string name="jskey_title" translatable="false">title</string>
+    <string name="jskey_image" translatable="false">poster_path</string>
+    <string name="jskey_array_results" translatable="false">results</string>
+    <string name="jskey_popularity" translatable="false">popularity</string>
+    <string name="jskey_vote_average" translatable="false">vote_average</string>
+    <string name="jskey_synopsis">overview</string>
+    <string name="jskey_original_title">original_title</string>
+
+
+    <!-- SETTINGS -->
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_sorting_label">Sorting</string>
+    <string name="pref_sorting_key" translatable="false">sorting</string>
+
+    <string name="pref_array_sorting_labels">array_sorting_labels</string>
+    <string name="pref_array_sorting_values">array_sorting_values</string>
+
+    <string name="pref_label_popularity">Most Popular</string>
+    <string name="pref_label_toprated">Top Rated</string>
+    <string name="pref_key_popularity" translatable="false">popular</string>
+    <string name="pref_key_toprated" translatable="false">top_rated</string>
+
+    <!--GENERAL-->
+
+    <string name="app_name">Popular Movies</string>
+    <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
+    <string name="please_wait">Please wait while we load the most popular movies!</string>
+    <string name="intent_key_moviedata">item_index</string>
+    <string name="title_activity_moviedetail">Movie Detail</string>
+    <string name="original_title_split">Original title:</string>
+    <string name="jskey_release">release_date</string>
+    <string name="error_no_internet">No internet connection.</string>
+
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="settings_array_sorting_labels">
+        <item>@string/pref_label_popularity</item>
+        <item>@string/pref_label_toprated</item>
+    </array>
+
+    <array name="settings_array_sorting_values">
+        <item>@string/pref_key_popularity</item>
+        <item>@string/pref_key_toprated</item>
+    </array>
+
+</resources>
