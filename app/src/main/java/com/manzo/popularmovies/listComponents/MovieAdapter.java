@@ -11,7 +11,6 @@ import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import java.util.List;
 

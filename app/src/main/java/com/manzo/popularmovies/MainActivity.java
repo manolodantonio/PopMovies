@@ -93,9 +93,6 @@ public class MainActivity extends AppCompatActivity implements
             JSONObject resultObject = new JSONObject(result);
             JSONArray resultArray = resultObject.getJSONArray(getString(R.string.jskey_array_results));
             List<String[]> arrayListDB = MovieDbUtilities.jsonArrayToList(this, resultArray);
-//            MovieDbUtilities.sortArrayDbByColumn(
-//                    arrayListDB, MovieDbUtilities.getSortingPreferenceColumnIndex(this)
-//            );
             movieAdapter.swapList(arrayListDB);
             switchLoadingStatus();
         } catch (JSONException e) {

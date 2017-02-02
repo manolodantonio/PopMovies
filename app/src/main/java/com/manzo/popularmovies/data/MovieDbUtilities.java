@@ -94,24 +94,7 @@ public class MovieDbUtilities {
         return resultArrayList;
     }
 
-    public static void sortArrayDbByColumn(List<String[]> arrayListDB, final int columnIndex) {
-        Collections.sort(arrayListDB,new Comparator<String[]>() {
-            public int compare(String[] strings, String[] otherStrings) {
-                return strings[columnIndex].compareTo(otherStrings[columnIndex]);
-            }
-        });
-        Collections.reverse(arrayListDB);
-    }
 
-    public static int getSortingPreferenceColumnIndex(Context context) {
-        String orderPreference = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(context.getString(R.string.pref_sorting_key), context.getString(R.string.pref_key_popularity));
-        switch (orderPreference) {
-            case "most_popular": return LIST_POPULARITY_INDEX;
-            case "top_rated": return LIST_RATING_INDEX;
-            default: return 0;
-        }
-    }
 
 }
 
