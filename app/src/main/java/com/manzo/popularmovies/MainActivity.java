@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
-import com.manzo.popularmovies.settings.SettingsActivity;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
 import org.json.JSONArray;

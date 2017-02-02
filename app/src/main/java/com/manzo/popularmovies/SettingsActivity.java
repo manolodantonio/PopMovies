@@ -1,4 +1,4 @@
-package com.manzo.popularmovies.settings;
+package com.manzo.popularmovies;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
