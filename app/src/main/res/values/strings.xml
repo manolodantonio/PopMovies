@@ -24,12 +24,14 @@
 
     <string name="pref_label_popularity">Most Popular</string>
     <string name="pref_label_toprated">Top Rated</string>
+
     <string name="pref_key_popularity" translatable="false">popular</string>
     <string name="pref_key_toprated" translatable="false">top_rated</string>
 
     <!--GENERAL-->
 
     <string name="app_name">Popular Movies</string>
+    <string name="movies">Movies</string>
     <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
     <string name="please_wait">Please wait while we load the most popular movies!</string>
     <string name="intent_key_moviedata">item_index</string>

@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
-import com.manzo.popularmovies.settings.SettingsActivity;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
 import org.json.JSONArray;
@@ -52,13 +51,13 @@ public class MainActivity extends AppCompatActivity implements
         tv_error = (TextView) findViewById(R.id.tv_error);
 
 
-        getPopularMoviesIfNeeded();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         getPopularMoviesIfNeeded();
+        setActionBarTitle();
     }
 
     @Override
@@ -147,7 +146,13 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void changeListOrder() {
+    private void setActionBarTitle() {
+        String sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
+        if (sortOrder.equals(getString(R.string.pref_key_popularity))) {
+            getSupportActionBar().setTitle(getString(R.string.app_name));
+        } else { getSupportActionBar().setTitle(
+                getString(R.string.pref_label_toprated) + " " + getString(R.string.movies)); }
 
     }
 
