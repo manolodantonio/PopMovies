@@ -55,12 +55,12 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         //Rating
         final TextView tv_rating = (TextView) findViewById(R.id.tv_rating);
-        tv_rating.setText(movieData[MovieDbUtilities.LIST_RATING_INDEX] + "/10");
+        tv_rating.setText(movieData[MovieDbUtilities.LIST_RATING_INDEX] + getString(R.string.slashten));
 
         //Original Title
         final TextView tv_original_title = (TextView) findViewById(R.id.tv_original_title);
         tv_original_title.setText(
-                getString(R.string.original_title_split) + "\n" +
+                getString(R.string.original_title_split) + getString(R.string.newline) +
                 movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX]);
 
 
@@ -71,12 +71,12 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private String formatStringDate(String stringDate) {
         String[] split = stringDate.split("-");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getString(R.string.dateformat_numeric_month));
         try {
             Date convertedDate = dateFormat.parse(split[1]);
             Calendar cal = Calendar.getInstance();
             cal.setTime(convertedDate);
-            String monthName = new SimpleDateFormat("MMMM", Locale.US).format(cal.getTime());
+            String monthName = new SimpleDateFormat(getString(R.string.dateformat_month_name), Locale.US).format(cal.getTime());
             return monthName + " " + split[0];
         } catch (java.text.ParseException e) {
             e.printStackTrace();

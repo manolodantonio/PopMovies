@@ -1,5 +1,12 @@
 <resources>
 
+    <!--URL BUILDER-->
+
+    <string name="builder_baseurl" translatable="false">https://api.themoviedb.org/3/movie/</string>
+    <string name="builder_apikey" translatable="false">\?api_key=</string>
+    <string name="builder_language" translatable="false"><![CDATA[&language=]]></string>
+    <string name="builder_lang_enus" translatable="false">en-US</string>
+
     <!--JSON KEYS-->
 
     <string name="jskey_title" translatable="false">title</string>
@@ -7,8 +14,9 @@
     <string name="jskey_array_results" translatable="false">results</string>
     <string name="jskey_popularity" translatable="false">popularity</string>
     <string name="jskey_vote_average" translatable="false">vote_average</string>
-    <string name="jskey_synopsis">overview</string>
-    <string name="jskey_original_title">original_title</string>
+    <string name="jskey_synopsis" translatable="false">overview</string>
+    <string name="jskey_original_title" translatable="false">original_title</string>
+    <string name="jskey_release" translatable="false">release_date</string>
 
 
     <!-- SETTINGS -->
@@ -37,7 +45,11 @@
     <string name="intent_key_moviedata">item_index</string>
     <string name="title_activity_moviedetail">Movie Detail</string>
     <string name="original_title_split">Original title:</string>
-    <string name="jskey_release">release_date</string>
     <string name="error_no_internet">No internet connection.</string>
+    <string name="singlewhitespace">" "</string>
+    <string name="slashten">/10</string>
+    <string name="newline">\n</string>
+    <string name="dateformat_numeric_month">MM</string>
+    <string name="dateformat_month_name">MMMM</string>
 
 </resources>

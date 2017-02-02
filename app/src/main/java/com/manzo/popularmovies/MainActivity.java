@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieItemClickListener,
         NetworkUtils.AsyncTaskCompletedListener {
 
-    private static final String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
 
     final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
     final  MovieAdapter movieAdapter = new MovieAdapter(this);
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMovieItemClick(int clickedItemIndex) {
         Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
-        String[] movieData = movieAdapter.listDB.get(clickedItemIndex);
+        String[] movieData = movieAdapter.moviesList.get(clickedItemIndex);
         detailActivity.putExtra(getString(R.string.intent_key_moviedata), movieData);
         startActivity(detailActivity);
     }
@@ -110,10 +109,10 @@ public class MainActivity extends AppCompatActivity implements
                         .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
                 try {
                     fetchURL = new URL(
-                            MOVIEDB_BASE_URL +
+                            getString(R.string.builder_baseurl) +
                             sortOrder +
-                            "?api_key=" + getString(R.string.movieDB_API_v3) +
-                            "&language=en-US");
+                            getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
+                            getString(R.string.builder_language) + getString(R.string.builder_lang_enus));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
@@ -152,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements
         if (sortOrder.equals(getString(R.string.pref_key_popularity))) {
             getSupportActionBar().setTitle(getString(R.string.app_name));
         } else { getSupportActionBar().setTitle(
-                getString(R.string.pref_label_toprated) + " " + getString(R.string.movies)); }
+                getString(R.string.pref_label_toprated) + getString(R.string.singlewhitespace) + getString(R.string.movies)); }
 
     }
 
