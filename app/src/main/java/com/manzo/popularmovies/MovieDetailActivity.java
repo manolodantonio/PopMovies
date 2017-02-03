@@ -36,8 +36,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         //Poster
         final ImageView iv_poster = (ImageView) findViewById(R.id.iv_poster);
-        String imageUrl = MovieAdapter.IMAGE_BASE_URL +
-                MovieAdapter.IMAGE_MEDIUM_QUALITY +
+        String imageUrl = getString(R.string.builder_image_baseurl) +
+                getString(R.string.builder_image_quality_medium) +
                 movieData[MovieDbUtilities.LIST_IMAGE_INDEX];
         Picasso.with(this)
                 .load(imageUrl)

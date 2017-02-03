@@ -18,8 +18,6 @@ import java.util.List;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
-    public static final String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/";
-    public static final String IMAGE_MEDIUM_QUALITY = "w185";
     public List<String[]> moviesList;
 
     public interface MovieItemClickListener {
@@ -84,8 +82,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     private void populateItem(MovieViewHolder holder, String[] movieData) throws JSONException {
 
         //Poster
-        String imageUrl = IMAGE_BASE_URL +
-                IMAGE_MEDIUM_QUALITY +
+        String imageUrl = context.getString(R.string.builder_image_baseurl) +
+                context.getString(R.string.builder_image_quality_medium) +
                 movieData[MovieDbUtilities.LIST_IMAGE_INDEX];
         Picasso.with(context)
                 .load(imageUrl)

@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
         setActionBarTitle();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements
             JSONArray resultArray = resultObject.getJSONArray(getString(R.string.jskey_array_results));
             List<String[]> arrayListDB = MovieDbUtilities.jsonArrayToList(this, resultArray);
             movieAdapter.swapList(arrayListDB);
+
             switchLoadingStatus();
         } catch (JSONException e) {
             e.printStackTrace();

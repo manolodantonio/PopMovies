@@ -2,7 +2,6 @@ package com.manzo.popularmovies.data;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v7.preference.PreferenceManager;
 
 import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.utilities.NetworkUtils;
@@ -14,8 +13,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
