@@ -1,15 +1,11 @@
 package com.manzo.popularmovies;
 
-import android.net.ParseException;
-import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.manzo.popularmovies.data.MovieDbUtilities;
-import com.manzo.popularmovies.listComponents.MovieAdapter;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
