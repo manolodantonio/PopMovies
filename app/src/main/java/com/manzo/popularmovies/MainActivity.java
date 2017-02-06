@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onMovieItemClick(int clickedItemIndex) {
         Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
         Movie clickedMovie = MovieDbUtilities.newMovieFromArrayString(
-                movieAdapter.moviesList.get(clickedItemIndex));
+                this, movieAdapter.moviesList.get(clickedItemIndex));
         detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
         startActivity(detailActivity);
     }

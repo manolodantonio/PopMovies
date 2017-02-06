@@ -42,6 +42,7 @@ public class MovieDbUtilities {
 
     private static final String DATEFORMAT_NUMERIC_MONTH = "MM";
     private static final String DATEFORMAT_MONTH_NAME = "MMMM";
+    public static final String  BUILDER_SLASHTEN = "/10" ;
 
 
     public static class RequestToMovieDB extends AsyncTask<URL, Void, String> {
@@ -106,14 +107,14 @@ public class MovieDbUtilities {
     }
 
 
-    public static Movie newMovieFromArrayString(String[] movieData) {
+    public static Movie newMovieFromArrayString(Context context, String[] movieData) {
         return new Movie(
                 BUILDER_IMAGE_BASEURL + BUILDER_IMAGE_QUALITY_MEDIUM +
                         movieData[MovieDbUtilities.LIST_IMAGE_INDEX],
                 movieData[MovieDbUtilities.LIST_TITLE_INDEX],
                 formatStringDate(movieData[MovieDbUtilities.LIST_RELEASE_INDEX]),
-                Double.parseDouble(movieData[MovieDbUtilities.LIST_RATING_INDEX]),
-                movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
+                movieData[MovieDbUtilities.LIST_RATING_INDEX] + context.getString(R.string.slashten),
+                context.getString(R.string.original_title_split) + context.getString(R.string.newline) + movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
                 movieData[MovieDbUtilities.LIST_SYNOPSIS_INDEX]
         );
     }

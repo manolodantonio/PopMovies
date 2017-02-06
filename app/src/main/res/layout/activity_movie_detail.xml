@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="user" type="com.manzo.popularmovies.data.Movie"/>
+    </data>
+
+    <LinearLayout
     android:orientation="vertical"
     android:id="@+id/activity_movie_detail"
     android:layout_width="match_parent"
@@ -26,8 +31,9 @@
                 android:textStyle="bold"
                 android:padding="@dimen/title_padding"
                 android:textColor="@color/bright_text"
+                android:background="@drawable/border"
                 tools:text="Check this amazing title"
-                android:background="@drawable/border"/>
+                android:text="@{user.title}"/>
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -55,21 +61,24 @@
                         android:id="@+id/tv_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/zero"/>
+                        android:layout_marginBottom="@dimen/zero"
+                        android:text="@{user.releaseDate}"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Small"
                         android:id="@+id/tv_original_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/content_margin_medium"/>
+                        android:layout_marginBottom="@dimen/content_margin_medium"
+                        android:text="@{user.originalTitle}"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Body1"
                         android:id="@+id/tv_rating"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/content_margin_small"/>
+                        android:layout_marginBottom="@dimen/content_margin_small"
+                        android:text="@{user.rating}"/>
 
                 </LinearLayout>
 
@@ -80,10 +89,12 @@
                 style="@style/Base.TextAppearance.AppCompat.Body1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/activity_vertical_margin" />
+                android:padding="@dimen/activity_vertical_margin"
+                android:text="@{user.synopsis}"/>
 
         </LinearLayout>
 
     </ScrollView>
 
 </LinearLayout>
+</layout>
