@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        getPopularMoviesIfNeeded();
+        getMoviesIfNeeded();
         setActionBarTitle();
     }
 
@@ -109,11 +109,12 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void getPopularMoviesIfNeeded() {
+    private void getMoviesIfNeeded() {
         String newSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getString(R.string.pref_sorting_key),
                         getString(R.string.pref_key_popularity));
         boolean orderIsChanged = !currentSortOrder.equals(newSortOrder);
+
         if (movieAdapter.getItemCount() == 0 || orderIsChanged) {
             switchLoadingStatus();
 
@@ -142,26 +143,25 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void switchLoadingStatus() {
-        if (movieAdapter != null && movieAdapter.getItemCount() != 0) {
-            // List is populated
-            rv_mainList.setVisibility(View.VISIBLE);
+        if (clpb_empty.getVisibility() == View.GONE) {
+            // Progressbar is gone, List is visible
+                if (NetworkUtils.isOnline(this)) {
+                    rv_mainList.setVisibility(View.GONE);
 
-            clpb_empty.setVisibility(View.GONE);
-            tv_error.setVisibility(View.GONE);
+                    clpb_empty.setVisibility(View.VISIBLE);
+                    tv_error.setVisibility(View.GONE);
+                } else {
+                    rv_mainList.setVisibility(View.GONE);
+
+                    clpb_empty.setVisibility(View.GONE);
+                    tv_error.setVisibility(View.VISIBLE);
+                }
         } else {
-            // List is empty
-            if (NetworkUtils.isOnline(this)) {
-                rv_mainList.setVisibility(View.GONE);
+        // List is gone, Progressbar is visible
+        rv_mainList.setVisibility(View.VISIBLE);
 
-                clpb_empty.setVisibility(View.VISIBLE);
-                tv_error.setVisibility(View.GONE);
-            } else {
-                rv_mainList.setVisibility(View.GONE);
-
-                clpb_empty.setVisibility(View.GONE);
-                tv_error.setVisibility(View.VISIBLE);
-            }
-
+        clpb_empty.setVisibility(View.GONE);
+        tv_error.setVisibility(View.GONE);
         }
     }
 
