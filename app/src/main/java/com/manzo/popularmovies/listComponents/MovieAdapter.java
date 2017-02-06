@@ -82,8 +82,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     private void populateItem(MovieViewHolder holder, String[] movieData) throws JSONException {
 
         //Poster
-        String imageUrl = context.getString(R.string.builder_image_baseurl) +
-                context.getString(R.string.builder_image_quality_medium) +
+        String imageUrl = MovieDbUtilities.BUILDER_IMAGE_BASEURL +
+                MovieDbUtilities.BUILDER_IMAGE_QUALITY_MEDIUM +
                 movieData[MovieDbUtilities.LIST_IMAGE_INDEX];
         Picasso.with(context)
                 .load(imageUrl)

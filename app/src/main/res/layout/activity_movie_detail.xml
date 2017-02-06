@@ -21,12 +21,12 @@
                 android:id="@+id/tv_title"
                 android:gravity="start|center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:textSize="32sp"
+                android:layout_height="@dimen/header_height_large"
+                android:textSize="@dimen/title_text_size"
                 android:textStyle="bold"
-                android:padding="24dp"
-                android:textColor="@android:color/white"
-                android:text="this is a title"
+                android:padding="@dimen/title_padding"
+                android:textColor="@color/bright_text"
+                tools:text="Check this amazing title"
                 android:background="@drawable/border"/>
 
             <LinearLayout
@@ -38,16 +38,16 @@
                 <ImageView
                     android:id="@+id/iv_poster"
                     android:adjustViewBounds="true"
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/zero"
                     android:layout_weight="0.8"
                     android:layout_height="wrap_content"/>
 
                 <LinearLayout
                     android:orientation="vertical"
-                    android:layout_width="0dp"
+                    android:layout_width="@dimen/zero"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="24dp">
+                    android:paddingLeft="@dimen/content_padding_large">
 
 
                     <TextView
@@ -55,21 +55,21 @@
                         android:id="@+id/tv_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="0dp"/>
+                        android:layout_marginBottom="@dimen/zero"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Small"
                         android:id="@+id/tv_original_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="@dimen/content_margin_medium"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Body1"
                         android:id="@+id/tv_rating"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"/>
+                        android:layout_marginBottom="@dimen/content_margin_small"/>
 
                 </LinearLayout>
 

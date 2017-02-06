@@ -12,14 +12,20 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.PublicKey;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Manolo on 01/02/2017.
  */
 
 public class MovieDbUtilities {
+
 
 
     public static final int LIST_POPULARITY_INDEX = 0;
@@ -30,6 +36,12 @@ public class MovieDbUtilities {
     public static final int LIST_ORIGINAL_TITLE_INDEX = 5;
     public static final int LIST_RELEASE_INDEX = 6;
     private static final int LIST_LENGHT = 7;
+
+    public static final String BUILDER_IMAGE_BASEURL = "http://image.tmdb.org/t/p/";
+    public static final String BUILDER_IMAGE_QUALITY_MEDIUM = "w185";
+
+    private static final String DATEFORMAT_NUMERIC_MONTH = "MM";
+    private static final String DATEFORMAT_MONTH_NAME = "MMMM";
 
 
     public static class RequestToMovieDB extends AsyncTask<URL, Void, String> {
@@ -63,6 +75,8 @@ public class MovieDbUtilities {
         }
 
     }
+
+
     public static List<String[]> jsonArrayToList(Context context, JSONArray jsonArray) {
         List<String[]> resultArrayList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -92,6 +106,33 @@ public class MovieDbUtilities {
     }
 
 
+    public static Movie newMovieFromArrayString(String[] movieData) {
+        return new Movie(
+                BUILDER_IMAGE_BASEURL + BUILDER_IMAGE_QUALITY_MEDIUM +
+                        movieData[MovieDbUtilities.LIST_IMAGE_INDEX],
+                movieData[MovieDbUtilities.LIST_TITLE_INDEX],
+                formatStringDate(movieData[MovieDbUtilities.LIST_RELEASE_INDEX]),
+                Double.parseDouble(movieData[MovieDbUtilities.LIST_RATING_INDEX]),
+                movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
+                movieData[MovieDbUtilities.LIST_SYNOPSIS_INDEX]
+        );
+    }
+
+    private static String formatStringDate(String stringDate) {
+        String[] split = stringDate.split("-");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT_NUMERIC_MONTH);
+        try {
+            Date convertedDate = dateFormat.parse(split[1]);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(convertedDate);
+            String monthName = new SimpleDateFormat(DATEFORMAT_MONTH_NAME, Locale.US).format(cal.getTime());
+            return monthName + " " + split[0];
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
 
 }
 

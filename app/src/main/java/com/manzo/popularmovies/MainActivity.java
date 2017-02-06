@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.manzo.popularmovies.data.Movie;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
 import com.manzo.popularmovies.utilities.NetworkUtils;
@@ -35,12 +36,18 @@ public class MainActivity extends AppCompatActivity implements
     public RecyclerView rv_mainList;
     public ProgressBar clpb_empty;
     private TextView tv_error;
+    private String currentSortOrder;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        currentSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_sorting_key),
+                        getString(R.string.pref_key_popularity));
+
 
         rv_mainList = (RecyclerView) findViewById(R.id.rv_main_list);
         rv_mainList.setAdapter(movieAdapter);
@@ -81,10 +88,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMovieItemClick(int clickedItemIndex) {
         Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
-        String[] movieData = movieAdapter.moviesList.get(clickedItemIndex);
-        detailActivity.putExtra(getString(R.string.intent_key_moviedata), movieData);
+        Movie clickedMovie = MovieDbUtilities.newMovieFromArrayString(
+                movieAdapter.moviesList.get(clickedItemIndex));
+        detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
         startActivity(detailActivity);
     }
+
 
     @Override
     public void onAsyncTaskCompleted(String result) {
@@ -101,8 +110,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void getPopularMoviesIfNeeded() {
-        if (movieAdapter.getItemCount() == 0) {
+        String newSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_sorting_key),
+                        getString(R.string.pref_key_popularity));
+        if (movieAdapter.getItemCount() == 0 || !currentSortOrder.equals(newSortOrder)) {
 
+            currentSortOrder = newSortOrder;
             switchLoadingStatus();
 
             if (NetworkUtils.isOnline(this)) {
