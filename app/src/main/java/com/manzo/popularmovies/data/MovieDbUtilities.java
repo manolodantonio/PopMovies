@@ -28,21 +28,17 @@ public class MovieDbUtilities {
 
 
 
-    public static final int LIST_POPULARITY_INDEX = 0;
-    public static final int LIST_RATING_INDEX = 1;
+    private static final int LIST_POPULARITY_INDEX = 0;
+    private static final int LIST_RATING_INDEX = 1;
     public static final int LIST_IMAGE_INDEX = 2;
-    public static final int LIST_SYNOPSIS_INDEX = 3;
-    public static final int LIST_TITLE_INDEX = 4;
-    public static final int LIST_ORIGINAL_TITLE_INDEX = 5;
-    public static final int LIST_RELEASE_INDEX = 6;
+    private static final int LIST_SYNOPSIS_INDEX = 3;
+    private static final int LIST_TITLE_INDEX = 4;
+    private static final int LIST_ORIGINAL_TITLE_INDEX = 5;
+    private static final int LIST_RELEASE_INDEX = 6;
     private static final int LIST_LENGHT = 7;
-
-    public static final String BUILDER_IMAGE_BASEURL = "http://image.tmdb.org/t/p/";
-    public static final String BUILDER_IMAGE_QUALITY_MEDIUM = "w185";
 
     private static final String DATEFORMAT_NUMERIC_MONTH = "MM";
     private static final String DATEFORMAT_MONTH_NAME = "MMMM";
-    public static final String  BUILDER_SLASHTEN = "/10" ;
 
 
     public static class RequestToMovieDB extends AsyncTask<URL, Void, String> {
@@ -109,12 +105,22 @@ public class MovieDbUtilities {
 
     public static Movie newMovieFromArrayString(Context context, String[] movieData) {
         return new Movie(
-                BUILDER_IMAGE_BASEURL + BUILDER_IMAGE_QUALITY_MEDIUM +
+                // ImageLink
+                context.getString(R.string.builder_image_baseurl) +
+                        context.getString(R.string.builder_image_quality_medium) +
                         movieData[MovieDbUtilities.LIST_IMAGE_INDEX],
+                // Title
                 movieData[MovieDbUtilities.LIST_TITLE_INDEX],
+                // ReleaseDate
                 formatStringDate(movieData[MovieDbUtilities.LIST_RELEASE_INDEX]),
-                movieData[MovieDbUtilities.LIST_RATING_INDEX] + context.getString(R.string.slashten),
-                context.getString(R.string.original_title_split) + context.getString(R.string.newline) + movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
+                // Rating
+                movieData[MovieDbUtilities.LIST_RATING_INDEX] +
+                        context.getString(R.string.slashten),
+                // OriginalTitle
+                context.getString(R.string.original_title_split) +
+                        context.getString(R.string.newline) +
+                        movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
+                // Synopsis
                 movieData[MovieDbUtilities.LIST_SYNOPSIS_INDEX]
         );
     }

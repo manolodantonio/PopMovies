@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <variable name="user" type="com.manzo.popularmovies.data.Movie"/>
+        <variable name="movie" type="com.manzo.popularmovies.data.Movie"/>
     </data>
 
     <LinearLayout
@@ -20,7 +20,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -33,7 +33,7 @@
                 android:textColor="@color/bright_text"
                 android:background="@drawable/border"
                 tools:text="Check this amazing title"
-                android:text="@{user.title}"/>
+                android:text="@{movie.title}"/>
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -62,7 +62,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/zero"
-                        android:text="@{user.releaseDate}"/>
+                        android:text="@{movie.releaseDate}"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Small"
@@ -70,7 +70,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/content_margin_medium"
-                        android:text="@{user.originalTitle}"/>
+                        android:text="@{movie.originalTitle}"/>
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Body1"
@@ -78,7 +78,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/content_margin_small"
-                        android:text="@{user.rating}"/>
+                        android:text="@{movie.rating}"/>
 
                 </LinearLayout>
 
@@ -90,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/activity_vertical_margin"
-                android:text="@{user.synopsis}"/>
+                android:text="@{movie.synopsis}"/>
 
         </LinearLayout>
 

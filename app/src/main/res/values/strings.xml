@@ -7,8 +7,8 @@
     <string name="builder_language" translatable="false"><![CDATA[&language=]]></string>
     <string name="builder_lang_enus" translatable="false">en-US</string>
 
-    <!--<string name="builder_image_baseurl">http://image.tmdb.org/t/p/</string>-->
-    <!--<string name="builder_image_quality_medium">w185</string>-->
+    <string name="builder_image_baseurl">http://image.tmdb.org/t/p/</string>
+    <string name="builder_image_quality_medium">w185</string>
 
     <!--JSON KEYS-->
 

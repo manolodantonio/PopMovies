@@ -64,14 +64,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
 
     public List<String[]> swapList(List<String[]> newList) {
 
-        // check if this JSONArray is the same as the previous JSONArray (jsonDB)
+        // check if this List is the same as the previous List (moviesList)
         if (moviesList == newList) {
             return moviesList; // bc nothing has changed
         }
         List<String[]> temp = moviesList;
         this.moviesList = newList; // new value assigned
 
-        //check if this is a valid JSON, then update the JSON
+        //check if this is a valid List
         if (newList != null) {
             // refresh adapter shown data
             this.notifyDataSetChanged();
@@ -82,8 +82,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     private void populateItem(MovieViewHolder holder, String[] movieData) throws JSONException {
 
         //Poster
-        String imageUrl = MovieDbUtilities.BUILDER_IMAGE_BASEURL +
-                MovieDbUtilities.BUILDER_IMAGE_QUALITY_MEDIUM +
+        String imageUrl = context.getString(R.string.builder_image_baseurl) +
+                context.getString(R.string.builder_image_quality_medium) +
                 movieData[MovieDbUtilities.LIST_IMAGE_INDEX];
         Picasso.with(context)
                 .load(imageUrl)
