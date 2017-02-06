@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-    final  MovieAdapter movieAdapter = new MovieAdapter(this);
+    final MovieAdapter movieAdapter = new MovieAdapter(this);
     public RecyclerView rv_mainList;
     public ProgressBar clpb_empty;
     private TextView tv_error;
@@ -113,10 +113,15 @@ public class MainActivity extends AppCompatActivity implements
         String newSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getString(R.string.pref_sorting_key),
                         getString(R.string.pref_key_popularity));
-        if (movieAdapter.getItemCount() == 0 || !currentSortOrder.equals(newSortOrder)) {
-
-            currentSortOrder = newSortOrder;
+        boolean orderIsChanged = !currentSortOrder.equals(newSortOrder);
+        if (movieAdapter.getItemCount() == 0 || orderIsChanged) {
             switchLoadingStatus();
+
+            if (orderIsChanged) {
+                gridLayoutManager.scrollToPosition(1);
+                currentSortOrder = newSortOrder;
+            }
+
 
             if (NetworkUtils.isOnline(this)) {
                 URL fetchURL = null;
