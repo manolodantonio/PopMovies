@@ -19,6 +19,6 @@
     <dimen name="content_margin_medium">8dp</dimen>
     <dimen name="content_margin_small">4dp</dimen>
 
-    <dimen name="view_row">170dp</dimen>
+    <dimen name="view_row_mid">170dp</dimen>
     <dimen name="view_row_icon">48dp</dimen>
 </resources>

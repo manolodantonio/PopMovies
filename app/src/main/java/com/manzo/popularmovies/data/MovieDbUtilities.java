@@ -3,6 +3,7 @@ package com.manzo.popularmovies.data;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.manzo.popularmovies.MovieDetailActivity;
 import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
@@ -45,8 +46,6 @@ public class MovieDbUtilities {
     private static final int LIST_VIDEO_TYPE = 2;
     private static final int LIST_VIDEO_SITE = 3;
     private static final int LIST_VIDEO_LENGTH = 4;
-
-
 
 
 
@@ -164,6 +163,28 @@ public class MovieDbUtilities {
         return resultArrayList;
     }
 
+    public static List<Review> jsonStringToReviewsList(Context context, String jsonString) throws JSONException {
+        JSONObject resultObject = new JSONObject(jsonString);
+        JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
+        List<Review> resultArrayList = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                JSONObject movie = jsonArray.getJSONObject(i);
+
+                String author =
+                        movie.getString(context.getString(R.string.jskey_author));
+                String content =
+                        movie.getString(context.getString(R.string.jskey_content));
+                String url =
+                        movie.getString(context.getString(R.string.jskey_url));
+                Review review = new Review(author, content, url);
+                resultArrayList.add(review);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return resultArrayList;
+    }
 
     public static Movie newMovieFromArrayString(Context context, String[] movieData) {
         return new Movie(

@@ -130,7 +130,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_trailersList"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/view_row"
+                android:layout_height="@dimen/view_row_mid"
                 android:paddingLeft="@dimen/content_padding_medium"
                 android:paddingRight="@dimen/content_padding_medium"
                 android:paddingBottom="@dimen/content_padding_small" />
@@ -144,9 +144,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/Base.TextAppearance.AppCompat.Small"
-                android:paddingTop="@dimen/content_padding_medium"
                 android:paddingLeft="@dimen/content_padding_medium"
                 android:paddingRight="@dimen/content_padding_medium"
+                android:paddingTop="@dimen/content_padding_small"
+                android:paddingBottom="@dimen/content_padding_small"
                 android:textColor="@color/accent_text"
                 android:text="@string/reviews"/>
 
@@ -156,7 +157,26 @@
                 android:layout_height="wrap_content"
                 style="@style/Widget.AppCompat.ProgressBar"
                 android:padding="@dimen/content_padding_medium"
+                android:visibility="gone"
                 />
+
+            <TextView
+                android:id="@+id/tv_reviews_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/content_padding_medium"
+                android:paddingRight="@dimen/content_padding_medium"
+                android:paddingBottom="@dimen/content_padding_medium"
+                style="@style/TextAppearance.AppCompat.Inverse"
+                android:visibility="gone"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_reviewsList"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/view_row_mid"
+                android:paddingLeft="@dimen/content_padding_medium"
+                android:paddingRight="@dimen/content_padding_medium"
+                android:paddingBottom="@dimen/content_padding_small" />
 
         </LinearLayout>
 

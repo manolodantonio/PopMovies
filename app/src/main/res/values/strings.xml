@@ -8,6 +8,7 @@
     <string name="builder_language" translatable="false"><![CDATA[&language=]]></string>
     <string name="builder_lang_enus" translatable="false">en-US</string>
     <string name="builder_videos" translatable="false">/videos</string>
+    <string name="builder_reviews">/reviews</string>
 
     <string name="builder_image_baseurl">http://image.tmdb.org/t/p/</string>
     <string name="builder_image_quality_medium">w185</string>
@@ -15,7 +16,7 @@
     <string name="builder_youtube_base">https://www.youtube.com/watch?v=</string>
 
     <!--JSON-->
-
+    <!--Movie-->
     <string name="jskey_title" translatable="false">title</string>
     <string name="jskey_image" translatable="false">poster_path</string>
     <string name="jskey_array_results" translatable="false">results</string>
@@ -25,7 +26,7 @@
     <string name="jskey_original_title" translatable="false">original_title</string>
     <string name="jskey_release" translatable="false">release_date</string>
 
-
+    <!--Video-->
     <string name="jskey_id">id</string>
     <string name="jskey_videokey">key</string>
     <string name="jskey_videoname">name</string>
@@ -33,6 +34,11 @@
     <string name="jskey_videosite">site</string>
 
     <string name="jsvalue_youtube">YouTube</string>
+
+    <!--Review-->
+    <string name="jskey_author">author</string>
+    <string name="jskey_content">content</string>
+    <string name="jskey_url">url</string>
 
 
     <!-- SETTINGS -->
@@ -70,6 +76,11 @@
     <string name="builder_page"><![CDATA[&page=]]></string>
     <string name="videos">Videos</string>
     <string name="reviews">Reviews</string>
-    <string name="error_trailers_novideos">There are no videos available for this movie.</string>
+    <string name="error_no_videos">There are no videos available for this movie.</string>
+    <string name="error_no_review">There are no reviews available for this movie.</string>
+    <string name="btn_openinbrowser">Open in browser</string>
+    <string name="back">Back</string>
+    <string name="key_moviedb">themoviedb</string>
+    <string name="outstate_review">outstate_current_review</string>
 
 </resources>

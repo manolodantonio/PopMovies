@@ -15,4 +15,10 @@
         <item name="android:layout_height">@dimen/one</item>
         <item name="android:background">@color/colorPrimaryDark</item>
     </style>
+
+    <style name="Divider_accent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/one</item>
+        <item name="android:background">@color/colorAccent</item>
+    </style>
 </resources>

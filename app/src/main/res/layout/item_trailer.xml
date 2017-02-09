@@ -46,7 +46,7 @@
 
 
             <TextView
-                android:id="@+id/tv_item_type"
+                android:id="@+id/tv_review_author"
                 style="@style/TextAppearance.AppCompat.Inverse"
                 android:textStyle="italic"
                 android:layout_width="wrap_content"

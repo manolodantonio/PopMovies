@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="review"
+            type="com.manzo.popularmovies.data.Review"/>
+        <variable
+            name="clickListener"
+            type="com.manzo.popularmovies.listComponents.ReviewAdapter.ReviewClickListener" />
+    </data>
+
+    <LinearLayout
+    android:orientation="vertical"
+    android:paddingTop="@dimen/content_padding_small"
+    android:paddingBottom="@dimen/content_padding_small"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:onClick="@{() -> clickListener.onReviewClick(review)}" >
+
+
+
+
+
+        <TextView
+            android:id="@+id/tv_item_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="5"
+            android:ellipsize="end"
+            android:text="@{review.content}"
+            tools:text="Boring trainwreck"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/content_margin_medium"
+            android:gravity="right">
+
+
+            <TextView
+                android:id="@+id/tv_review_author"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:textStyle="italic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{review.author}"
+                tools:text="BillyBalloh on"/>
+
+            <ImageView
+                android:id="@+id/iv_review_site_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                tools:src="@mipmap/ic_tmdb"
+                />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>
