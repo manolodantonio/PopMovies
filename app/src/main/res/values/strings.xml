@@ -1,16 +1,20 @@
 <resources>
 
     <!--URL BUILDER-->
+    <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
 
     <string name="builder_baseurl" translatable="false">https://api.themoviedb.org/3/movie/</string>
     <string name="builder_apikey" translatable="false">\?api_key=</string>
     <string name="builder_language" translatable="false"><![CDATA[&language=]]></string>
     <string name="builder_lang_enus" translatable="false">en-US</string>
+    <string name="builder_videos" translatable="false">/videos</string>
 
     <string name="builder_image_baseurl">http://image.tmdb.org/t/p/</string>
     <string name="builder_image_quality_medium">w185</string>
 
-    <!--JSON KEYS-->
+    <string name="builder_youtube_base">https://www.youtube.com/watch?v=</string>
+
+    <!--JSON-->
 
     <string name="jskey_title" translatable="false">title</string>
     <string name="jskey_image" translatable="false">poster_path</string>
@@ -20,6 +24,15 @@
     <string name="jskey_synopsis" translatable="false">overview</string>
     <string name="jskey_original_title" translatable="false">original_title</string>
     <string name="jskey_release" translatable="false">release_date</string>
+
+
+    <string name="jskey_id">id</string>
+    <string name="jskey_videokey">key</string>
+    <string name="jskey_videoname">name</string>
+    <string name="jskey_videotype">type</string>
+    <string name="jskey_videosite">site</string>
+
+    <string name="jsvalue_youtube">YouTube</string>
 
 
     <!-- SETTINGS -->
@@ -43,7 +56,6 @@
 
     <string name="app_name">Popular Movies</string>
     <string name="movies">Movies</string>
-    <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
     <string name="please_wait">Please wait while we load the most popular movies!</string>
     <string name="intent_key_moviedata">item_index</string>
     <string name="title_activity_moviedetail">Movie Detail</string>
@@ -55,5 +67,9 @@
     <!--<string name="dateformat_numeric_month">MM</string>-->
     <!--<string name="dateformat_month_name">MMMM</string>-->
     <string name="savestate_movieslist">savestate movieslist</string>
+    <string name="builder_page"><![CDATA[&page=]]></string>
+    <string name="videos">Videos</string>
+    <string name="reviews">Reviews</string>
+    <string name="error_trailers_novideos">There are no videos available for this movie.</string>
 
 </resources>

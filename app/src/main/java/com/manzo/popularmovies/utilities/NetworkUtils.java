@@ -25,9 +25,9 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     public interface AsyncTaskCompletedListener {
-
         void onAsyncTaskCompleted(String result);
     }
+
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {

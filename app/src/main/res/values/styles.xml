@@ -8,6 +8,11 @@
         
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
-    
 
+    <!--Dividers-->
+    <style name="Divider_black">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/one</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+    </style>
 </resources>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,9 +19,7 @@ import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,7 +35,11 @@ public class MainActivity extends AppCompatActivity implements
     public RecyclerView rv_mainList;
     public ProgressBar clpb_empty;
     private TextView tv_error;
+
+
     private String currentSortOrder;
+    private int page = 1;
+    private boolean isLoadingMoreMovies = false;
 
 
     @Override
@@ -64,7 +67,10 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         getMoviesIfNeeded();
         setActionBarTitle();
+        rv_mainList.addOnScrollListener(newScrollMoviesListener());
     }
+
+
 
 
     @Override
@@ -98,10 +104,13 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onAsyncTaskCompleted(String result) {
         try {
-            JSONObject resultObject = new JSONObject(result);
-            JSONArray resultArray = resultObject.getJSONArray(getString(R.string.jskey_array_results));
-            List<String[]> arrayListDB = MovieDbUtilities.jsonArrayToList(this, resultArray);
-            movieAdapter.swapList(arrayListDB);
+            List<String[]> arrayListDB = MovieDbUtilities.jsonStringToMovieList(this, result);
+            if (isLoadingMoreMovies) {
+                isLoadingMoreMovies = false;
+                movieAdapter.moviesList.addAll(arrayListDB);
+                movieAdapter.notifyItemRangeInserted(
+                        movieAdapter.getItemCount() - 1, arrayListDB.size());
+            } else movieAdapter.swapList(arrayListDB);
 
             switchLoadingStatus();
         } catch (JSONException e) {
@@ -111,34 +120,40 @@ public class MainActivity extends AppCompatActivity implements
 
     private void getMoviesIfNeeded() {
         String newSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(getString(R.string.pref_sorting_key),
-                        getString(R.string.pref_key_popularity));
+                .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
         boolean orderIsChanged = !currentSortOrder.equals(newSortOrder);
 
+
         if (movieAdapter.getItemCount() == 0 || orderIsChanged) {
-            switchLoadingStatus();
 
             if (orderIsChanged) {
                 gridLayoutManager.scrollToPosition(1);
+                page = 1;
                 currentSortOrder = newSortOrder;
             }
 
+            getMovies();
 
-            if (NetworkUtils.isOnline(this)) {
-                URL fetchURL = null;
-                String sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
-                        .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
-                try {
-                    fetchURL = new URL(
-                            getString(R.string.builder_baseurl) +
-                            sortOrder +
-                            getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
-                            getString(R.string.builder_language) + getString(R.string.builder_lang_enus));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                new MovieDbUtilities.RequestToMovieDB(this).execute(fetchURL);
+        }
+    }
+
+    public void getMovies() {
+        switchLoadingStatus();
+        if (NetworkUtils.isOnline(this)) {
+            URL fetchURL = null;
+            String sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
+            try {
+                fetchURL = new URL(
+                        getString(R.string.builder_baseurl) +
+                                sortOrder +
+                                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
+                                getString(R.string.builder_language) + getString(R.string.builder_lang_enus) +
+                                getString(R.string.builder_page) + page);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
+            new MovieDbUtilities.RequestToMovieDB(this).execute(fetchURL);
         }
     }
 
@@ -146,9 +161,15 @@ public class MainActivity extends AppCompatActivity implements
         if (clpb_empty.getVisibility() == View.GONE) {
             // Progressbar is gone, List is visible
                 if (NetworkUtils.isOnline(this)) {
-                    rv_mainList.setVisibility(View.GONE);
+                    if (isLoadingMoreMovies){
+                        rv_mainList.setVisibility(View.VISIBLE);
 
-                    clpb_empty.setVisibility(View.VISIBLE);
+                        clpb_empty.setVisibility(View.VISIBLE);
+                    } else {
+                        rv_mainList.setVisibility(View.GONE);
+
+                        clpb_empty.setVisibility(View.VISIBLE);
+                    }
                     tv_error.setVisibility(View.GONE);
                 } else {
                     rv_mainList.setVisibility(View.GONE);
@@ -157,11 +178,11 @@ public class MainActivity extends AppCompatActivity implements
                     tv_error.setVisibility(View.VISIBLE);
                 }
         } else {
-        // List is gone, Progressbar is visible
-        rv_mainList.setVisibility(View.VISIBLE);
+            // List is gone, Progressbar is visible
+            rv_mainList.setVisibility(View.VISIBLE);
 
-        clpb_empty.setVisibility(View.GONE);
-        tv_error.setVisibility(View.GONE);
+            clpb_empty.setVisibility(View.GONE);
+            tv_error.setVisibility(View.GONE);
         }
     }
 
@@ -173,6 +194,24 @@ public class MainActivity extends AppCompatActivity implements
         } else { getSupportActionBar().setTitle(
                 getString(R.string.pref_label_toprated) + getString(R.string.singlewhitespace) + getString(R.string.movies)); }
 
+    }
+
+    private RecyclerView.OnScrollListener newScrollMoviesListener() {
+        return new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int lastVisible = gridLayoutManager.findLastVisibleItemPosition();
+                int totalItems = gridLayoutManager.getItemCount();
+                if ( !isLoadingMoreMovies &&
+                        (lastVisible >= (totalItems - 5) || lastVisible == totalItems)) {
+                    Log.d("Scrolled to" , String.valueOf(lastVisible));
+                    isLoadingMoreMovies = true; //flag needed to prevent multiple parallel executions
+                    page++;
+                    getMovies();
+                }
+            }
+        };
     }
 
 }

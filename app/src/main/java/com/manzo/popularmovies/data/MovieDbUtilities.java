@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.PublicKey;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,6 +25,8 @@ import java.util.Locale;
 
 public class MovieDbUtilities {
 
+    private static final String DATEFORMAT_NUMERIC_MONTH = "MM";
+    private static final String DATEFORMAT_MONTH_NAME = "MMMM";
 
 
     private static final int LIST_POPULARITY_INDEX = 0;
@@ -35,10 +36,18 @@ public class MovieDbUtilities {
     private static final int LIST_TITLE_INDEX = 4;
     private static final int LIST_ORIGINAL_TITLE_INDEX = 5;
     private static final int LIST_RELEASE_INDEX = 6;
-    private static final int LIST_LENGHT = 7;
+    private static final int LIST_ID_INDEX = 7;
+    private static final int LIST_LENGTH = 8;
 
-    private static final String DATEFORMAT_NUMERIC_MONTH = "MM";
-    private static final String DATEFORMAT_MONTH_NAME = "MMMM";
+
+    private static final int LIST_VIDEO_KEY = 0;
+    private static final int LIST_VIDEO_NAME = 1;
+    private static final int LIST_VIDEO_TYPE = 2;
+    private static final int LIST_VIDEO_SITE = 3;
+    private static final int LIST_VIDEO_LENGTH = 4;
+
+
+
 
 
     public static class RequestToMovieDB extends AsyncTask<URL, Void, String> {
@@ -74,12 +83,14 @@ public class MovieDbUtilities {
     }
 
 
-    public static List<String[]> jsonArrayToList(Context context, JSONArray jsonArray) {
+    public static List<String[]> jsonStringToMovieList(Context context, String jsonString) throws JSONException {
+        JSONObject resultObject = new JSONObject(jsonString);
+        JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
         List<String[]> resultArrayList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 JSONObject movie = jsonArray.getJSONObject(i);
-                String[] strings = new String[LIST_LENGHT];
+                String[] strings = new String[LIST_LENGTH];
                 strings[LIST_POPULARITY_INDEX] =
                         movie.getString(context.getString(R.string.jskey_popularity));
                 strings[LIST_RATING_INDEX] =
@@ -94,7 +105,58 @@ public class MovieDbUtilities {
                         movie.getString(context.getString(R.string.jskey_original_title));
                 strings[LIST_RELEASE_INDEX] =
                         movie.getString(context.getString(R.string.jskey_release));
+                strings[LIST_ID_INDEX] =
+                        movie.getString(context.getString(R.string.jskey_id));
                 resultArrayList.add(strings);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return resultArrayList;
+    }
+
+//    public static List<String[]> jsonStringToVideoList(Context context, String jsonString) throws JSONException {
+//        JSONObject resultObject = new JSONObject(jsonString);
+//        JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
+//        List<String[]> resultArrayList = new ArrayList<>();
+//        for (int i = 0; i < jsonArray.length(); i++) {
+//            try {
+//                JSONObject movie = jsonArray.getJSONObject(i);
+//                String[] strings = new String[LIST_VIDEO_LENGTH];
+//                strings[LIST_VIDEO_KEY] =
+//                        movie.getString(context.getString(R.string.jskey_videokey));
+//                strings[LIST_VIDEO_NAME] =
+//                        movie.getString(context.getString(R.string.jskey_videoname));
+//                strings[LIST_VIDEO_TYPE] =
+//                        movie.getString(context.getString(R.string.jskey_videotype));
+//                strings[LIST_VIDEO_SITE] =
+//                        movie.getString(context.getString(R.string.jskey_videotype));
+//                resultArrayList.add(strings);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return resultArrayList;
+//    }
+
+    public static List<Trailer> jsonStringToTrailersList(Context context, String jsonString) throws JSONException {
+        JSONObject resultObject = new JSONObject(jsonString);
+        JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
+        List<Trailer> resultArrayList = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                JSONObject movie = jsonArray.getJSONObject(i);
+
+                String key =
+                        movie.getString(context.getString(R.string.jskey_videokey));
+                String title =
+                        movie.getString(context.getString(R.string.jskey_videoname));
+                String type =
+                        movie.getString(context.getString(R.string.jskey_videotype));
+                String site =
+                        movie.getString(context.getString(R.string.jskey_videosite));
+                Trailer trailer = new Trailer(key, title, type, site);
+                resultArrayList.add(trailer);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -105,6 +167,8 @@ public class MovieDbUtilities {
 
     public static Movie newMovieFromArrayString(Context context, String[] movieData) {
         return new Movie(
+                // ID
+                movieData[MovieDbUtilities.LIST_ID_INDEX],
                 // ImageLink
                 context.getString(R.string.builder_image_baseurl) +
                         context.getString(R.string.builder_image_quality_medium) +

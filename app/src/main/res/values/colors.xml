@@ -5,4 +5,5 @@
     <color name="colorAccent">#b71c1c</color>
 
     <color name="bright_text">#ffffff</color>
+    <color name="accent_text">#b71c1c</color>
 </resources>
