@@ -1,9 +1,11 @@
 package com.manzo.popularmovies.data;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
-import com.manzo.popularmovies.MovieDetailActivity;
 import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
@@ -47,14 +49,41 @@ public class MovieDbUtilities {
     private static final int LIST_VIDEO_SITE = 3;
     private static final int LIST_VIDEO_LENGTH = 4;
 
-
-
-    public static class RequestToMovieDB extends AsyncTask<URL, Void, String> {
+    public static class LoadFavourites extends AsyncTask<Void, Void, List<Movie>> {
 
         NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+        Context context;
 
-        public RequestToMovieDB(NetworkUtils.AsyncTaskCompletedListener listener) {
+        public LoadFavourites(NetworkUtils.AsyncTaskCompletedListener listener, Context context) {
             this.asyncTaskCompletedListener = listener;
+            this.context = context;
+        }
+
+        @Override
+        protected List<Movie> doInBackground(Void... voids) {
+            Cursor cursor = context.getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
+                    null, null, null, null);
+            return cursorToMovieList(cursor);
+        }
+
+
+        @Override
+        protected void onPostExecute(List<Movie> movies) {
+            super.onPostExecute(movies);
+            asyncTaskCompletedListener.onAsyncTaskCompleted(movies);
+        }
+    }
+
+
+
+    public static class RequestToMovieDB extends AsyncTask<URL, Void, List<Movie>> {
+
+        NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+        Context context;
+
+        public RequestToMovieDB(NetworkUtils.AsyncTaskCompletedListener listener, Context context) {
+            this.asyncTaskCompletedListener = listener;
+            this.context = context;
         }
 
         @Override
@@ -64,55 +93,110 @@ public class MovieDbUtilities {
 
 
         @Override
-        protected String doInBackground(URL... urls) {
+        protected List<Movie> doInBackground(URL... urls) {
             try {
-                return NetworkUtils.getResponseFromHttpUrl(urls[0]);
+                String jsonString = NetworkUtils.getResponseFromHttpUrl(urls[0]);
+                return MovieDbUtilities.jsonStringToMovieList(context, jsonString);
             } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            } catch (JSONException e) {
                 e.printStackTrace();
                 return null;
             }
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(List<Movie> result) {
             super.onPostExecute(result);
             asyncTaskCompletedListener.onAsyncTaskCompleted(result);
         }
 
     }
 
-
-    public static List<String[]> jsonStringToMovieList(Context context, String jsonString) throws JSONException {
+    public static List<Movie> jsonStringToMovieList(Context context, String jsonString) throws JSONException {
         JSONObject resultObject = new JSONObject(jsonString);
         JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
-        List<String[]> resultArrayList = new ArrayList<>();
+        List<Movie> resultArrayList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 JSONObject movie = jsonArray.getJSONObject(i);
-                String[] strings = new String[LIST_LENGTH];
-                strings[LIST_POPULARITY_INDEX] =
-                        movie.getString(context.getString(R.string.jskey_popularity));
-                strings[LIST_RATING_INDEX] =
-                        movie.getString(context.getString(R.string.jskey_vote_average));
-                strings[LIST_IMAGE_INDEX] =
+                String rating =
+                        movie.getString(context.getString(R.string.jskey_vote_average)) +
+                        context.getString(R.string.slashten);
+                String imageLink =
+                        context.getString(R.string.builder_image_baseurl) +
+                        context.getString(R.string.builder_image_quality_medium) +
                         movie.getString(context.getString(R.string.jskey_image));
-                strings[LIST_SYNOPSIS_INDEX] =
+                String synopsis =
                         movie.getString(context.getString(R.string.jskey_synopsis));
-                strings[LIST_TITLE_INDEX] =
+                String title =
                         movie.getString(context.getString(R.string.jskey_title));
-                strings[LIST_ORIGINAL_TITLE_INDEX] =
+                String originalTitle =
+                        context.getString(R.string.original_title_split) +
+                        context.getString(R.string.newline) +
                         movie.getString(context.getString(R.string.jskey_original_title));
-                strings[LIST_RELEASE_INDEX] =
-                        movie.getString(context.getString(R.string.jskey_release));
-                strings[LIST_ID_INDEX] =
+                String releaseDate =
+                        formatStringDate(movie.getString(context.getString(R.string.jskey_release)));
+                String tmbdId =
                         movie.getString(context.getString(R.string.jskey_id));
-                resultArrayList.add(strings);
+                resultArrayList.add(
+                        new Movie(tmbdId, imageLink, title, releaseDate, rating, originalTitle, synopsis));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
         return resultArrayList;
     }
+
+    public static List<Movie> cursorToMovieList(Cursor cursor) {
+        List<Movie> resultArrayList = new ArrayList<>();
+        while (cursor.moveToNext()){
+            resultArrayList.add(new Movie(
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_TMDB_ID)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_IMAGELINK)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_TITLE)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_RELEASE_DATE)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_RATING)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_ORIGINAL_TITLE)),
+                    cursor.getString(cursor.getColumnIndex(DbContract.UserFavourites.COLUMN_SYNOPSIS))
+            ));
+        }
+
+        return resultArrayList;
+    }
+
+//    public static List<String[]> jsonStringToMovieList(Context context, String jsonString) throws JSONException {
+//        JSONObject resultObject = new JSONObject(jsonString);
+//        JSONArray jsonArray = resultObject.getJSONArray(context.getString(R.string.jskey_array_results));
+//        List<String[]> resultArrayList = new ArrayList<>();
+//        for (int i = 0; i < jsonArray.length(); i++) {
+//            try {
+//                JSONObject movie = jsonArray.getJSONObject(i);
+//                String[] strings = new String[LIST_LENGTH];
+//                strings[LIST_POPULARITY_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_popularity));
+//                strings[LIST_RATING_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_vote_average));
+//                strings[LIST_IMAGE_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_image));
+//                strings[LIST_SYNOPSIS_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_synopsis));
+//                strings[LIST_TITLE_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_title));
+//                strings[LIST_ORIGINAL_TITLE_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_original_title));
+//                strings[LIST_RELEASE_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_release));
+//                strings[LIST_ID_INDEX] =
+//                        movie.getString(context.getString(R.string.jskey_id));
+//                resultArrayList.add(strings);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return resultArrayList;
+//    }
 
 //    public static List<String[]> jsonStringToVideoList(Context context, String jsonString) throws JSONException {
 //        JSONObject resultObject = new JSONObject(jsonString);
@@ -224,6 +308,18 @@ public class MovieDbUtilities {
             return null;
         }
 
+    }
+
+    public static ContentValues movieToContentValues(Movie movieData) {
+        ContentValues values = new ContentValues();
+        values.put(DbContract.UserFavourites.COLUMN_TMDB_ID, movieData.getId());
+        values.put(DbContract.UserFavourites.COLUMN_IMAGELINK, movieData.getImageLink());
+        values.put(DbContract.UserFavourites.COLUMN_TITLE, movieData.getTitle());
+        values.put(DbContract.UserFavourites.COLUMN_RELEASE_DATE, movieData.getReleaseDate());
+        values.put(DbContract.UserFavourites.COLUMN_RATING, movieData.getRating());
+        values.put(DbContract.UserFavourites.COLUMN_ORIGINAL_TITLE, movieData.getOriginalTitle());
+        values.put(DbContract.UserFavourites.COLUMN_SYNOPSIS, movieData.getSynopsis());
+        return values;
     }
 
 }

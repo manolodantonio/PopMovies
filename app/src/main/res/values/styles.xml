@@ -21,4 +21,9 @@
         <item name="android:layout_height">@dimen/one</item>
         <item name="android:background">@color/colorAccent</item>
     </style>
+
+    <!--Button-->
+    <style name="Button_borderless_yellow" parent="Base.Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/colorAccentYellow</item>
+    </style>
 </resources>

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.manzo.popularmovies.R;
+import com.manzo.popularmovies.data.Movie;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.squareup.picasso.Picasso;
 
@@ -18,7 +19,7 @@ import java.util.List;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
-    public List<String[]> moviesList;
+    public List<Movie> moviesList;
 
     public interface MovieItemClickListener {
         void onMovieItemClick (int clickedItemIndex);
@@ -62,13 +63,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
     }
 
 
-    public List<String[]> swapList(List<String[]> newList) {
+    public List<Movie> swapList(List<Movie> newList) {
 
         // check if this List is the same as the previous List (moviesList)
         if (moviesList == newList) {
             return moviesList; // bc nothing has changed
         }
-        List<String[]> temp = moviesList;
+        List<Movie> temp = moviesList;
         this.moviesList = newList; // new value assigned
 
         //check if this is a valid List
@@ -79,14 +80,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
         return temp; //previous db
     }
 
-    private void populateItem(MovieViewHolder holder, String[] movieData) throws JSONException {
+    private void populateItem(MovieViewHolder holder, Movie movieData) throws JSONException {
 
-        //Poster
-        String imageUrl = context.getString(R.string.builder_image_baseurl) +
-                context.getString(R.string.builder_image_quality_medium) +
-                movieData[MovieDbUtilities.LIST_IMAGE_INDEX];
         Picasso.with(context)
-                .load(imageUrl)
+                .load(movieData.getImageLink())
                 .into(holder.iv_poster);
     }
 

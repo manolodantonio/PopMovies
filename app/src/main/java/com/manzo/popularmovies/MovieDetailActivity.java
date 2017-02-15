@@ -1,13 +1,20 @@
 package com.manzo.popularmovies;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.manzo.popularmovies.data.DbContract;
 import com.manzo.popularmovies.data.Movie;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.data.Review;
@@ -51,9 +59,8 @@ public class MovieDetailActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Data binding sets content view and binds data to views in just few steps!
         binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
-        Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
+        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
         binding.setMovie(movieData);
-
 
 
         // Poster
@@ -78,7 +85,33 @@ public class MovieDetailActivity extends AppCompatActivity
             currentReviewReading = savedInstanceState.getParcelable(getString(R.string.outstate_review));
             if (currentReviewReading != null) {openReviewDialog(currentReviewReading);}
         }
+
+        // Favs Buttons
+        setupFavsButton();
+
     }
+
+    private void setupFavsButton() {
+        Cursor cursor = getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
+                new String[]{DbContract.UserFavourites._ID},
+                DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
+                new String[]{
+                        ((Movie) getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata)))
+                                .getId()}
+                , null);
+        if (cursor != null && cursor.moveToNext()){
+            switchFavsButton();
+        }
+        binding.btnFavourites.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (binding.btnFavourites.getText().equals(getString(R.string.add_to_favourites))) {
+                    addToFavs();
+                } else removeFromFavs();
+            }
+        });
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -242,5 +275,44 @@ public class MovieDetailActivity extends AppCompatActivity
             }
         });
         builder.show();
+    }
+
+
+    private void addToFavs() {
+        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
+        Uri insertedUri = getContentResolver().insert(
+                DbContract.UserFavourites.URI_CONTENT,
+                MovieDbUtilities.movieToContentValues(movieData));
+        Log.d("Inserted uri: ", String.valueOf(insertedUri));
+
+        switchFavsButton();
+    }
+
+
+    private void removeFromFavs() {
+        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
+        int deleted = getContentResolver().delete(
+                DbContract.UserFavourites.URI_CONTENT,
+                DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
+                new String[]{movieData.getId()});
+        Log.d("deleted rows", String.valueOf(deleted));
+
+        switchFavsButton();
+    }
+
+    private void switchFavsButton() {
+        if (binding.btnFavourites.getText().equals(getString(R.string.add_to_favourites))) {
+            binding.btnFavourites.setText(R.string.one_of_my_favs);
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(this, R.color.bright_text));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.amber_background));
+            binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
+                    ContextCompat.getDrawable(this, android.R.drawable.star_big_on), null,null,null);
+        } else {
+            binding.btnFavourites.setText(R.string.add_to_favourites);
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(this, R.color.colorAccentYellow));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent_background));
+            binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
+                    ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_off), null,null,null);
+        }
     }
 }

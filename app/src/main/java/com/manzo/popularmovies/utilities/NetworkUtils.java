@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.manzo.popularmovies.R;
+import com.manzo.popularmovies.data.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +26,7 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     public interface AsyncTaskCompletedListener {
-        void onAsyncTaskCompleted(String result);
+        void onAsyncTaskCompleted(List<Movie> result);
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {

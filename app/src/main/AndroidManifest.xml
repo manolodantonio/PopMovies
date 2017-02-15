@@ -36,6 +36,11 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <provider
+            android:authorities="com.manzo.popularmovies"
+            android:name="com.manzo.popularmovies.data.FavouritesContentProvider"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -80,6 +80,16 @@
                         android:layout_marginBottom="@dimen/content_margin_small"
                         android:text="@{movie.rating}"/>
 
+                    <Button
+                        style="@style/Button_borderless_yellow"
+                        android:id="@+id/btn_favourites"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@android:drawable/btn_star_big_off"
+                        android:paddingLeft="@dimen/content_padding_medium"
+                        android:paddingRight="@dimen/content_padding_medium"
+                        android:text="@string/add_to_favourites"/>
+
                 </LinearLayout>
 
             </LinearLayout>

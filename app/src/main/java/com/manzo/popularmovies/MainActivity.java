@@ -2,6 +2,7 @@ package com.manzo.popularmovies;
 
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         getMoviesIfNeeded();
         setActionBarTitle();
-        rv_mainList.addOnScrollListener(newScrollMoviesListener());
+        if (!currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+            rv_mainList.addOnScrollListener(newScrollMoviesListener());
+        }
     }
 
 
@@ -96,28 +99,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMovieItemClick(int clickedItemIndex) {
         Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
-        Movie clickedMovie = MovieDbUtilities.newMovieFromArrayString(
-                this, movieAdapter.moviesList.get(clickedItemIndex));
+        Movie clickedMovie = movieAdapter.moviesList.get(clickedItemIndex);
         detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
         startActivity(detailActivity);
     }
 
 
     @Override
-    public void onAsyncTaskCompleted(String result) {
-        try {
-            List<String[]> arrayListDB = MovieDbUtilities.jsonStringToMovieList(this, result);
-            if (isLoadingMoreMovies) {
-                isLoadingMoreMovies = false;
-                movieAdapter.moviesList.addAll(arrayListDB);
-                movieAdapter.notifyItemRangeInserted(
-                        movieAdapter.getItemCount() - 1, arrayListDB.size());
-            } else movieAdapter.swapList(arrayListDB);
+    public void onAsyncTaskCompleted(List<Movie> result) {
+//            List<Movie> arrayListDB = MovieDbUtilities.jsonStringToMovieList(this, result);
+        if (isLoadingMoreMovies) {
+            isLoadingMoreMovies = false;
+            movieAdapter.moviesList.addAll(result);
+            movieAdapter.notifyItemRangeInserted(
+                    movieAdapter.getItemCount() - 1, result.size());
+        } else movieAdapter.swapList(result);
 
-            switchLoadingStatus();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        switchLoadingStatus();
     }
 
     private void getMoviesIfNeeded() {
@@ -125,8 +123,9 @@ public class MainActivity extends AppCompatActivity implements
                 .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
         boolean orderIsChanged = !currentSortOrder.equals(newSortOrder);
 
-
-        if (movieAdapter.getItemCount() == 0 || orderIsChanged) {
+        if (movieAdapter.getItemCount() == 0 || orderIsChanged ||
+                currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+            currentSortOrder = newSortOrder;
 
             if (orderIsChanged) {
                 gridLayoutManager.scrollToPosition(1);
@@ -141,21 +140,22 @@ public class MainActivity extends AppCompatActivity implements
 
     public void getMovies() {
         switchLoadingStatus();
-        if (NetworkUtils.isOnline(this)) {
+
+        if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+            new MovieDbUtilities.LoadFavourites(this, this).execute();
+        } else if (NetworkUtils.isOnline(this)) {
             URL fetchURL = null;
-            String sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
-                    .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
             try {
                 fetchURL = new URL(
                         getString(R.string.builder_baseurl) +
-                                sortOrder +
+                                currentSortOrder +
                                 getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
                                 getString(R.string.builder_language) + getString(R.string.builder_lang_enus) +
                                 getString(R.string.builder_page) + page);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            new MovieDbUtilities.RequestToMovieDB(this).execute(fetchURL);
+            new MovieDbUtilities.RequestToMovieDB(this, this).execute(fetchURL);
         }
     }
 
@@ -191,7 +191,9 @@ public class MainActivity extends AppCompatActivity implements
     private void setActionBarTitle() {
         String sortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
-        if (sortOrder.equals(getString(R.string.pref_key_popularity))) {
+        if (sortOrder.equals(getString(R.string.pref_key_favourites))) {
+            getSupportActionBar().setTitle(getString(R.string.favourites));
+        } else if (sortOrder.equals(getString(R.string.pref_key_popularity))) {
             getSupportActionBar().setTitle(getString(R.string.app_name));
         } else { getSupportActionBar().setTitle(
                 getString(R.string.pref_label_toprated) + getString(R.string.singlewhitespace) + getString(R.string.movies)); }
@@ -205,12 +207,13 @@ public class MainActivity extends AppCompatActivity implements
                 super.onScrolled(recyclerView, dx, dy);
                 int lastVisible = gridLayoutManager.findLastVisibleItemPosition();
                 int totalItems = gridLayoutManager.getItemCount();
-                if ( !isLoadingMoreMovies &&
-                        (lastVisible >= (totalItems - 5) || lastVisible == totalItems)) {
-                    Log.d("Scrolled to" , String.valueOf(lastVisible));
-                    isLoadingMoreMovies = true; //flag needed to prevent multiple parallel executions
-                    page++;
-                    getMovies();
+                if ( !isLoadingMoreMovies && !currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+                    if ((lastVisible >= (totalItems - 5) || lastVisible == totalItems)) {
+                        Log.d("Scrolled to" , String.valueOf(lastVisible));
+                        isLoadingMoreMovies = true; //flag needed to prevent multiple parallel executions
+                        page++;
+                        getMovies();
+                    }
                 }
             }
         };
