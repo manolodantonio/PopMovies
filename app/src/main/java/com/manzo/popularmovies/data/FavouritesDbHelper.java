@@ -4,14 +4,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by Manolo on 13/02/2017.
- */
 
 public class FavouritesDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_FILENAME = "fav.db";
-    public static final int DATABASE_VERSION = 6;
+    public static final int DATABASE_VERSION = 9;
 
     public FavouritesDbHelper(Context context) {
         super(context, DATABASE_FILENAME, null, DATABASE_VERSION);

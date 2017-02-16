@@ -4,15 +4,24 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
 
 import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.utilities.NetworkUtils;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -22,9 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Manolo on 01/02/2017.
- */
 
 public class MovieDbUtilities {
 
@@ -122,8 +128,9 @@ public class MovieDbUtilities {
             try {
                 JSONObject movie = jsonArray.getJSONObject(i);
                 String rating =
-                        movie.getString(context.getString(R.string.jskey_vote_average)) +
-                        context.getString(R.string.slashten);
+                        movie.getString(context.getString(R.string.jskey_vote_average))
+//                        + context.getString(R.string.slashten)
+                        ;
                 String imageLink =
                         context.getString(R.string.builder_image_baseurl) +
                         context.getString(R.string.builder_image_quality_medium) +
@@ -137,6 +144,8 @@ public class MovieDbUtilities {
                         context.getString(R.string.newline) +
                         movie.getString(context.getString(R.string.jskey_original_title));
                 String releaseDate =
+                        context.getString(R.string.release_split) +
+                        context.getString(R.string.newline) +
                         formatStringDate(movie.getString(context.getString(R.string.jskey_release)));
                 String tmbdId =
                         movie.getString(context.getString(R.string.jskey_id));
@@ -270,29 +279,30 @@ public class MovieDbUtilities {
         return resultArrayList;
     }
 
-    public static Movie newMovieFromArrayString(Context context, String[] movieData) {
-        return new Movie(
-                // ID
-                movieData[MovieDbUtilities.LIST_ID_INDEX],
-                // ImageLink
-                context.getString(R.string.builder_image_baseurl) +
-                        context.getString(R.string.builder_image_quality_medium) +
-                        movieData[MovieDbUtilities.LIST_IMAGE_INDEX],
-                // Title
-                movieData[MovieDbUtilities.LIST_TITLE_INDEX],
-                // ReleaseDate
-                formatStringDate(movieData[MovieDbUtilities.LIST_RELEASE_INDEX]),
-                // Rating
-                movieData[MovieDbUtilities.LIST_RATING_INDEX] +
-                        context.getString(R.string.slashten),
-                // OriginalTitle
-                context.getString(R.string.original_title_split) +
-                        context.getString(R.string.newline) +
-                        movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
-                // Synopsis
-                movieData[MovieDbUtilities.LIST_SYNOPSIS_INDEX]
-        );
-    }
+//    public static Movie newMovieFromArrayString(Context context, String[] movieData) {
+//        return new Movie(
+//                // ID
+//                movieData[MovieDbUtilities.LIST_ID_INDEX],
+//                // ImageLink
+//                context.getString(R.string.builder_image_baseurl) +
+//                        context.getString(R.string.builder_image_quality_medium) +
+//                        movieData[MovieDbUtilities.LIST_IMAGE_INDEX],
+//                // Title
+//                movieData[MovieDbUtilities.LIST_TITLE_INDEX],
+//                // ReleaseDate
+//                formatStringDate(movieData[MovieDbUtilities.LIST_RELEASE_INDEX]),
+//                // Rating
+//                movieData[MovieDbUtilities.LIST_RATING_INDEX]
+//                        + context.getString(R.string.slashten)
+//                ,
+//                // OriginalTitle
+//                context.getString(R.string.original_title_split) +
+//                        context.getString(R.string.newline) +
+//                        movieData[MovieDbUtilities.LIST_ORIGINAL_TITLE_INDEX],
+//                // Synopsis
+//                movieData[MovieDbUtilities.LIST_SYNOPSIS_INDEX]
+//        );
+//    }
 
     private static String formatStringDate(String stringDate) {
         String[] split = stringDate.split("-");
@@ -321,6 +331,126 @@ public class MovieDbUtilities {
         values.put(DbContract.UserFavourites.COLUMN_SYNOPSIS, movieData.getSynopsis());
         return values;
     }
+
+//    public static class ImageDownload extends AsyncTask<Void, Void, Uri> {
+//
+//        String url;
+//        Context context;
+//        NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+//        final File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + url);
+//
+//        public ImageDownload(String url, Context context, NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener) {
+//
+//            this.url = url;
+//            this.context = context;
+//            this.asyncTaskCompletedListener = asyncTaskCompletedListener;
+//        }
+//
+//        @Override
+//        protected Uri doInBackground(Void... voids) {
+//            Target target = new Target(){
+//
+//                @Override
+//                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+//                    Thread thread = new Thread(new Runnable() {
+//
+//                        @Override
+//                        public void run() {
+//
+//                            try {
+//                                file.createNewFile();
+//                                FileOutputStream ostream = new FileOutputStream(file);
+//                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);
+//                                ostream.flush();
+//                                ostream.close();
+//                            } catch (IOException e) {
+//                                Log.e("IOException", e.getLocalizedMessage());
+//                            }
+//                        }
+//
+//                    });
+//                    thread.start();
+//
+//                }
+//
+//                @Override
+//                public void onBitmapFailed(Drawable errorDrawable) {
+//
+//                }
+//
+//                @Override
+//                public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                }
+//            };
+//
+//            Picasso.with(context)
+//                    .load(url)
+//                    .into(target);
+//
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Uri uri) {
+//            super.onPostExecute(uri);
+//        }
+//    }
+
+    public static Uri imageDownload (final String url, Context context) {
+
+
+//        File direc = new File(context.getFilesDir() + File.separator);
+//        boolean direcResult = direc.mkdirs();
+        String[] split = url.split("/");
+        final File file = new File(context.getFilesDir(), split[split.length-1]);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        String path = file.getAbsolutePath();
+
+        final Target target = new Target(){
+            @Override
+            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            FileOutputStream ostream = new FileOutputStream(file);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);
+                            ostream.flush();
+                            ostream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+
+        };
+
+        Picasso.with(context)
+                .load(url)
+                .into(target);
+
+        return Uri.fromFile(file);
+
+    }
+
+
 
 }
 

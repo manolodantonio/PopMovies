@@ -1,7 +1,7 @@
 <resources>
 
     <!--URL BUILDER-->
-    <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
+    <string name="movieDB_API_v3" translatable="false">insert_your_key_here</string>
 
     <string name="builder_baseurl" translatable="false">https://api.themoviedb.org/3/movie/</string>
     <string name="builder_apikey" translatable="false">\?api_key=</string>
@@ -85,10 +85,13 @@
     <string name="back">Back</string>
     <string name="key_moviedb">themoviedb</string>
     <string name="outstate_review">outstate_current_review</string>
-    <string name="one_of_my_favs">One of my favourites!</string>
-    <string name="add_to_favourites">Add to favourites</string>
+    <string name="one_of_my_favs">One of my\nfavourites!</string>
+    <string name="add_to_favourites">Add to\nfavourites</string>
     <string name="added_to_favs">Movie added to favourites list</string>
     <string name="removed_from_favs">Movie removed from favourites</string>
     <string name="error_unknown_uri">"Unknown uri: "</string>
+    <string name="error_no_favs">You have no favourite movies.</string>
+    <string name="release_split">Release:</string>
+    <string name="user_rating">User Rating</string>
 
 </resources>

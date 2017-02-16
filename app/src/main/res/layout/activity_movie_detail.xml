@@ -26,7 +26,7 @@
                 android:id="@+id/tv_title"
                 android:gravity="start|center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/header_height_large"
+                android:layout_height="@dimen/view_row_small"
                 android:textSize="@dimen/title_text_size"
                 android:textStyle="bold"
                 android:padding="@dimen/title_padding"
@@ -39,12 +39,12 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/activity_vertical_margin">
+                android:padding="@dimen/content_padding_medium">
 
                 <ImageView
                     android:id="@+id/iv_poster"
                     android:adjustViewBounds="true"
-                    android:layout_width="@dimen/zero"
+                    android:layout_width="0dp"
                     android:layout_weight="0.8"
                     android:layout_height="wrap_content"/>
 
@@ -52,17 +52,18 @@
                     android:orientation="vertical"
                     android:layout_width="@dimen/zero"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="@dimen/content_padding_large">
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/content_margin_large">
 
 
                     <TextView
-                        style="@style/Base.TextAppearance.AppCompat.Title"
+                        style="@style/Base.TextAppearance.AppCompat.Small"
                         android:id="@+id/tv_release"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/zero"
+                        android:layout_marginBottom="@dimen/content_margin_large"
                         android:text="@{movie.releaseDate}"/>
+
 
                     <TextView
                         style="@style/Base.TextAppearance.AppCompat.Small"
@@ -72,36 +73,73 @@
                         android:layout_marginBottom="@dimen/content_margin_medium"
                         android:text="@{movie.originalTitle}"/>
 
-                    <TextView
-                        style="@style/Base.TextAppearance.AppCompat.Body1"
-                        android:id="@+id/tv_rating"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/content_margin_small"
-                        android:text="@{movie.rating}"/>
 
-                    <Button
-                        style="@style/Button_borderless_yellow"
-                        android:id="@+id/btn_favourites"
+                    <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableLeft="@android:drawable/btn_star_big_off"
-                        android:paddingLeft="@dimen/content_padding_medium"
-                        android:paddingRight="@dimen/content_padding_medium"
-                        android:text="@string/add_to_favourites"/>
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="bottom">
+
+                        <Button
+                            style="@style/Button_borderless_yellow"
+                            android:id="@+id/btn_favourites"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableLeft="@android:drawable/btn_star_big_off"
+                            android:paddingLeft="@dimen/content_padding_medium"
+                            android:paddingRight="@dimen/content_padding_medium"
+                            android:text="@string/add_to_favourites"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
+
+
+
+
+
             </LinearLayout>
 
-
-            <TextView
-                android:id="@+id/tv_synopsis"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/content_padding_large"
+                android:paddingRight="@dimen/content_padding_large"
+                android:paddingBottom="@dimen/content_padding_large"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/content_padding_medium"
-                android:text="@{movie.synopsis}"/>
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginRight="@dimen/content_margin_large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/Base.TextAppearance.AppCompat.Small"
+                        android:layout_marginBottom="@dimen/content_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/user_rating"/>
+
+                    <com.manzo.popularmovies.utilities.CircleDisplay
+                        android:id="@+id/cd_rating_circle"
+                        android:layout_height="70dp"
+                        android:layout_width="70dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_synopsis"
+                    style="@style/Base.TextAppearance.AppCompat.Body1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{movie.synopsis}"/>
+
+            </LinearLayout>
 
             <!--TRAILERS-->
 

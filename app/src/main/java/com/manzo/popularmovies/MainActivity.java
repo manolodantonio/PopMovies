@@ -162,7 +162,24 @@ public class MainActivity extends AppCompatActivity implements
     private void switchLoadingStatus() {
         if (clpb_empty.getVisibility() == View.GONE) {
             // Progressbar is gone, List is visible
-                if (NetworkUtils.isOnline(this)) {
+                if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+                    // is Favourites
+                    if (movieAdapter.getItemCount() == 0) {
+                        // List is empty
+                        rv_mainList.setVisibility(View.GONE);
+
+                        clpb_empty.setVisibility(View.GONE);
+                        tv_error.setVisibility(View.VISIBLE);
+                        tv_error.setText(R.string.error_no_favs);
+                    } else {
+                        // List is populated
+                        rv_mainList.setVisibility(View.VISIBLE);
+
+                        clpb_empty.setVisibility(View.GONE);
+                        tv_error.setVisibility(View.GONE);
+                    }
+                } else if (NetworkUtils.isOnline(this)) {
+
                     if (isLoadingMoreMovies){
                         rv_mainList.setVisibility(View.VISIBLE);
 
@@ -178,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements
 
                     clpb_empty.setVisibility(View.GONE);
                     tv_error.setVisibility(View.VISIBLE);
+                    tv_error.setText(getString(R.string.error_no_internet));
                 }
         } else {
             // List is gone, Progressbar is visible

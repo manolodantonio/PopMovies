@@ -1,15 +1,14 @@
 package com.manzo.popularmovies;
 
+import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -39,12 +39,14 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 
 public class MovieDetailActivity extends AppCompatActivity
         implements TrailerAdapter.TrailerClickListener, ReviewAdapter.ReviewClickListener {
 
+    private static final int REQUEST_WRITE_STORAGE = 111;
     final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(this);
     final TrailerAdapter trailerAdapter = new TrailerAdapter(this);
     final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
@@ -67,6 +69,25 @@ public class MovieDetailActivity extends AppCompatActivity
         Picasso.with(this)
                 .load(movieData.getImageLink())
                 .into(binding.ivPoster);
+
+        // Rating circle
+        String rating = movieData.getRating();
+        if (rating.contains(".")) {
+            rating = rating.replace(".","");}
+        else rating += "0";
+        float percent = Float.parseFloat(rating);
+        binding.cdRatingCircle.setAnimDuration(1500);
+        binding.cdRatingCircle.setTextSize(16f);
+        int ratingColor;
+        if (percent < 45) {ratingColor = ContextCompat.getColor(this, R.color.colorAccent);}
+        else if (percent < 70) {ratingColor = ContextCompat.getColor(this, R.color.colorAccentYellow);}
+        else {ratingColor = ContextCompat.getColor(this, R.color.colorAccentGreen);}
+        binding.cdRatingCircle.setColor(ratingColor);
+        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(this, R.color.bright_text));
+        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        binding.cdRatingCircle.setValueWidthPercent(25f);
+        binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
+        binding.cdRatingCircle.showValue(percent, 100f, true);
 
         // Start Volley
         final RequestQueue queue = Volley.newRequestQueue(this);
@@ -110,6 +131,7 @@ public class MovieDetailActivity extends AppCompatActivity
                 } else removeFromFavs();
             }
         });
+        cursor.close();
     }
 
 
@@ -279,14 +301,43 @@ public class MovieDetailActivity extends AppCompatActivity
 
 
     private void addToFavs() {
-        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
-        Uri insertedUri = getContentResolver().insert(
-                DbContract.UserFavourites.URI_CONTENT,
-                MovieDbUtilities.movieToContentValues(movieData));
-        Log.d("Inserted uri: ", String.valueOf(insertedUri));
+//        boolean hasPermission = (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+//        if (!hasPermission) {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                    REQUEST_WRITE_STORAGE);
+//        } else {
+            final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
+            Uri imageUri = MovieDbUtilities.imageDownload(movieData.getImageLink(), this);
+            Movie tempMovie = movieData;
+            tempMovie.setImageLink(String.valueOf(imageUri));
+            Uri insertedUri = getContentResolver().insert(
+                    DbContract.UserFavourites.URI_CONTENT,
+                    MovieDbUtilities.movieToContentValues(tempMovie));
+            Log.d("Inserted uri: ", String.valueOf(insertedUri));
 
-        switchFavsButton();
+            switchFavsButton();
+//        }
     }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode)
+//        {
+//            case REQUEST_WRITE_STORAGE: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+//                {
+//                    //reload my activity with permission granted or use the features what required the permission
+//                } else
+//                {
+//                    Toast.makeText(this, "The app was not allowed to write to your storage. Hence, it cannot function properly. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        }
+//
+//    }
 
 
     private void removeFromFavs() {
@@ -310,7 +361,7 @@ public class MovieDetailActivity extends AppCompatActivity
         } else {
             binding.btnFavourites.setText(R.string.add_to_favourites);
             binding.btnFavourites.setTextColor(ContextCompat.getColor(this, R.color.colorAccentYellow));
-            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.transparent_background));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.background_transparent));
             binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
                     ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_off), null,null,null);
         }
