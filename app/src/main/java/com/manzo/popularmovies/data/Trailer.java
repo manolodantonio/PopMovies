@@ -11,15 +11,26 @@ public class Trailer {
     private String type;
     private String site;
 
-    public Trailer(String key, String title, String type, String site) {
+
+    private String thumbnail;
+
+    public Trailer(String key, String title, String type, String site, String thumbnail) {
         this.key = key;
         this.title = title;
         this.type = type;
         this.site = site;
+        this.thumbnail = thumbnail;
     }
 
 
 
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
     public String getSite() {
         return site;

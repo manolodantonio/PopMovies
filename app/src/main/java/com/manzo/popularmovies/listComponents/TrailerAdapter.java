@@ -19,6 +19,9 @@ import java.util.List;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerViewHolder> {
 
+    private static final int THUMB_WIDTH = 480;
+    private static final int THUMB_HEIGHT = 270;
+
     public interface TrailerClickListener {
         void onTrailerClick(Trailer trailer);
     }
@@ -54,7 +57,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerViewHolder> {
         String site = trailer.getSite();
 
         if (trailer.getSite().equals(context.getString(R.string.jsvalue_youtube))){
-            Picasso.with(context).load(R.mipmap.ic_youtube).into(holder.binding.ivTrailerSiteIcon);
+            Picasso.with(context)
+                    .load(trailer.getThumbnail())
+                    .resize(THUMB_WIDTH, THUMB_HEIGHT)
+                    .centerCrop()
+                    .into(holder.binding.ivTrailerSiteIcon);
         }
 
     }

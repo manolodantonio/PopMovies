@@ -237,17 +237,21 @@ public class MovieDbUtilities {
         List<Trailer> resultArrayList = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                JSONObject movie = jsonArray.getJSONObject(i);
+                JSONObject jsonTrailer = jsonArray.getJSONObject(i);
 
                 String key =
-                        movie.getString(context.getString(R.string.jskey_videokey));
+                        jsonTrailer.getString(context.getString(R.string.jskey_videokey));
                 String title =
-                        movie.getString(context.getString(R.string.jskey_videoname));
+                        jsonTrailer.getString(context.getString(R.string.jskey_videoname));
                 String type =
-                        movie.getString(context.getString(R.string.jskey_videotype));
+                        jsonTrailer.getString(context.getString(R.string.jskey_videotype));
                 String site =
-                        movie.getString(context.getString(R.string.jskey_videosite));
-                Trailer trailer = new Trailer(key, title, type, site);
+                        jsonTrailer.getString(context.getString(R.string.jskey_videosite));
+                String thumbnail =
+                        context.getString(R.string.builder_base_youtube_image) +
+                        jsonTrailer.getString(context.getString(R.string.jskey_videokey)) +
+                        context.getString(R.string.builer_youimage_quality0);
+                Trailer trailer = new Trailer(key, title, type, site, thumbnail);
                 resultArrayList.add(trailer);
             } catch (JSONException e) {
                 e.printStackTrace();

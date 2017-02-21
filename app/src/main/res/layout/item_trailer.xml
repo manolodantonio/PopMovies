@@ -11,20 +11,20 @@
     </data>
 
     <LinearLayout
-    android:orientation="horizontal"
-    android:paddingTop="@dimen/content_padding_small"
-    android:paddingBottom="@dimen/content_padding_small"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:paddingRight="@dimen/content_padding_medium"
     android:onClick="@{() -> clickListener.onTrailerClick(trailer)}" >
+        <!--android:paddingTop="@dimen/content_padding_small"-->
+        <!--android:paddingBottom="@dimen/content_padding_small"-->
 
 
         <ImageView
             android:id="@+id/iv_trailer_site_icon"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/view_row_icon"
-            android:layout_marginRight="@dimen/content_margin_medium"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:adjustViewBounds="true"
             tools:src="@mipmap/ic_youtube"
             />
@@ -39,8 +39,9 @@
                 android:id="@+id/tv_item_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:gravity="bottom"
+                android:ellipsize="end"
                 android:text="@{trailer.title}"
                 tools:text="daje daje"/>
 

@@ -42,7 +42,7 @@
                 android:padding="@dimen/content_padding_medium">
 
                 <ImageView
-                    android:id="@+id/iv_poster"
+                    android:id="@+id/iv_detail_poster"
                     android:adjustViewBounds="true"
                     android:layout_width="0dp"
                     android:layout_weight="0.8"
@@ -84,11 +84,12 @@
                         <Button
                             style="@style/Button_borderless_yellow"
                             android:id="@+id/btn_favourites"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawableLeft="@android:drawable/btn_star_big_off"
+                            android:drawablePadding="@dimen/content_padding_small"
                             android:paddingLeft="@dimen/content_padding_medium"
-                            android:paddingRight="@dimen/content_padding_medium"
+                            android:paddingRight="@dimen/content_padding_large"
                             android:text="@string/add_to_favourites"/>
 
                     </LinearLayout>
@@ -178,10 +179,12 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_trailersList"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/view_row_mid"
+                android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/content_padding_medium"
                 android:paddingRight="@dimen/content_padding_medium"
                 android:paddingBottom="@dimen/content_padding_small" />
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/view_row_mid"-->
 
 
             <!--COMMENTS-->

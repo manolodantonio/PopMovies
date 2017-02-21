@@ -1,7 +1,7 @@
 <resources>
 
     <!--URL BUILDER-->
-    <string name="movieDB_API_v3" translatable="false">insert_your_key_here</string>
+    <string name="movieDB_API_v3" translatable="false">d98d6529e0becbdd2b344aa5f7d83eda</string>
 
     <string name="builder_baseurl" translatable="false">https://api.themoviedb.org/3/movie/</string>
     <string name="builder_apikey" translatable="false">\?api_key=</string>
@@ -65,6 +65,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="movies">Movies</string>
     <string name="favourites">My favourite movies</string>
+    <string name="action_favourites">My favourites</string>
     <string name="please_wait">Please wait while we load the most popular movies!</string>
     <string name="intent_key_moviedata">item_index</string>
     <string name="title_activity_moviedetail">Movie Detail</string>
@@ -93,5 +94,8 @@
     <string name="error_no_favs">You have no favourite movies.</string>
     <string name="release_split">Release:</string>
     <string name="user_rating">User Rating</string>
+    <string name="action_sort_by">Sort By</string>
+    <string name="builder_base_youtube_image">http://img.youtube.com/vi/</string>
+    <string name="builer_youimage_quality0">/0.jpg</string>
 
 </resources>

@@ -1,24 +1,23 @@
 package com.manzo.popularmovies;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -43,30 +42,37 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 
-public class MovieDetailActivity extends AppCompatActivity
+public class MovieDetailFragment extends Fragment
         implements TrailerAdapter.TrailerClickListener, ReviewAdapter.ReviewClickListener {
 
     private static final int REQUEST_WRITE_STORAGE = 111;
-    final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+    final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
     final TrailerAdapter trailerAdapter = new TrailerAdapter(this);
-    final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(this);
+    final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getContext());
     final ReviewAdapter reviewAdapter = new ReviewAdapter(this);
     private ActivityMovieDetailBinding binding;
 
     private Review currentReviewReading;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
         // Data binding sets content view and binds data to views in just few steps!
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
-        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
+        binding = DataBindingUtil.inflate(inflater, R.layout.activity_movie_detail, container, false);
+        final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
         binding.setMovie(movieData);
 
 
         // Poster
-        Picasso.with(this)
+        Picasso.with(getContext())
                 .load(movieData.getImageLink())
                 .into(binding.ivDetailPoster);
 
@@ -79,18 +85,18 @@ public class MovieDetailActivity extends AppCompatActivity
         binding.cdRatingCircle.setAnimDuration(1500);
         binding.cdRatingCircle.setTextSize(16f);
         int ratingColor;
-        if (percent < 45) {ratingColor = ContextCompat.getColor(this, R.color.colorAccent);}
-        else if (percent < 70) {ratingColor = ContextCompat.getColor(this, R.color.colorAccentYellow);}
-        else {ratingColor = ContextCompat.getColor(this, R.color.colorAccentGreen);}
+        if (percent < 45) {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccent);}
+        else if (percent < 70) {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccentYellow);}
+        else {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccentGreen);}
         binding.cdRatingCircle.setColor(ratingColor);
-        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(this, R.color.bright_text));
-        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(getContext(), R.color.bright_text));
+        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         binding.cdRatingCircle.setValueWidthPercent(25f);
         binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
         binding.cdRatingCircle.showValue(percent, 100f, true);
 
         // Start Volley
-        final RequestQueue queue = Volley.newRequestQueue(this);
+        final RequestQueue queue = Volley.newRequestQueue(getContext());
         // Trailers
         binding.rvTrailersList.setAdapter(trailerAdapter);
         binding.rvTrailersList.setLayoutManager(trailersLayoutManager);
@@ -110,14 +116,15 @@ public class MovieDetailActivity extends AppCompatActivity
         // Favs Buttons
         setupFavsButton();
 
+        return binding.getRoot();
     }
 
     private void setupFavsButton() {
-        Cursor cursor = getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
+        Cursor cursor = getContext().getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
                 new String[]{DbContract.UserFavourites._ID},
                 DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
                 new String[]{
-                        ((Movie) getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata)))
+                        ((Movie) getArguments().getParcelable(getString(R.string.intent_key_moviedata)))
                                 .getId()}
                 , null);
         if (cursor != null && cursor.moveToNext()){
@@ -136,7 +143,7 @@ public class MovieDetailActivity extends AppCompatActivity
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(getString(R.string.outstate_review), currentReviewReading);
     }
@@ -155,7 +162,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         try {
                             List<Trailer> videoList = MovieDbUtilities
-                                    .jsonStringToTrailersList(MovieDetailActivity.this, response);
+                                    .jsonStringToTrailersList(getContext(), response);
                             trailerAdapter.swapList(videoList);
                             switchTrailerLoading();
                         } catch (JSONException e) {
@@ -187,7 +194,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         try {
                             List<Review> reviewList = MovieDbUtilities
-                                    .jsonStringToReviewsList(MovieDetailActivity.this, response);
+                                    .jsonStringToReviewsList(getContext(), response);
                             reviewAdapter.swapList(reviewList);
                             switchReviewLoading();
                         } catch (JSONException e) {
@@ -221,7 +228,7 @@ public class MovieDetailActivity extends AppCompatActivity
                 binding.clpbTrailers.setVisibility(View.GONE);
                 binding.rvTrailersList.setVisibility(View.GONE);
                 binding.tvTrailersError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(this)) {
+                if (NetworkUtils.isOnline(getContext())) {
                     binding.tvTrailersError.setText(R.string.error_no_videos);
                 } else binding.tvTrailersError.setText(R.string.error_no_internet);
             }
@@ -244,7 +251,7 @@ public class MovieDetailActivity extends AppCompatActivity
                 binding.clpbReviews.setVisibility(View.GONE);
                 binding.rvReviewsList.setVisibility(View.GONE);
                 binding.tvReviewsError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(this)) {
+                if (NetworkUtils.isOnline(getContext())) {
                     binding.tvReviewsError.setText(R.string.error_no_review);
                 } else binding.tvReviewsError.setText(R.string.error_no_internet);
             }
@@ -265,7 +272,7 @@ public class MovieDetailActivity extends AppCompatActivity
 
     private void openReviewDialog(final Review review) {
         currentReviewReading = review;
-        LayoutInflater inflater= LayoutInflater.from(this);
+        LayoutInflater inflater= LayoutInflater.from(getContext());
         View view=inflater.inflate(R.layout.dialog_review, null);
 
         TextView tv_content = (TextView) view.findViewById(R.id.tv_dialog_content);
@@ -277,10 +284,10 @@ public class MovieDetailActivity extends AppCompatActivity
         ImageView iv_siteicon = (ImageView) view.findViewById(R.id.iv_dialog_site_icon);
         // Check review site to choose icon
         if (review.getUrl().contains(getString(R.string.key_moviedb))) {
-            Picasso.with(this).load(R.mipmap.ic_tmdb).into(iv_siteicon);
+            Picasso.with(getContext()).load(R.mipmap.ic_tmdb).into(iv_siteicon);
         }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setView(view);
         builder.setPositiveButton(R.string.btn_openinbrowser, new DialogInterface.OnClickListener() {
             @Override
@@ -308,11 +315,11 @@ public class MovieDetailActivity extends AppCompatActivity
 //                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
 //                    REQUEST_WRITE_STORAGE);
 //        } else {
-            final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
-            Uri imageUri = MovieDbUtilities.imageDownload(movieData.getImageLink(), this);
+            final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
+            Uri imageUri = MovieDbUtilities.imageDownload(movieData.getImageLink(), getContext());
             Movie tempMovie = movieData;
             tempMovie.setImageLink(String.valueOf(imageUri));
-            Uri insertedUri = getContentResolver().insert(
+            Uri insertedUri = getContext().getContentResolver().insert(
                     DbContract.UserFavourites.URI_CONTENT,
                     MovieDbUtilities.movieToContentValues(tempMovie));
             Log.d("Inserted uri: ", String.valueOf(insertedUri));
@@ -341,8 +348,8 @@ public class MovieDetailActivity extends AppCompatActivity
 
 
     private void removeFromFavs() {
-        final Movie movieData = getIntent().getParcelableExtra(getString(R.string.intent_key_moviedata));
-        int deleted = getContentResolver().delete(
+        final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
+        int deleted = getContext().getContentResolver().delete(
                 DbContract.UserFavourites.URI_CONTENT,
                 DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
                 new String[]{movieData.getId()});
@@ -354,16 +361,16 @@ public class MovieDetailActivity extends AppCompatActivity
     private void switchFavsButton() {
         if (binding.btnFavourites.getText().equals(getString(R.string.add_to_favourites))) {
             binding.btnFavourites.setText(R.string.one_of_my_favs);
-            binding.btnFavourites.setTextColor(ContextCompat.getColor(this, R.color.bright_text));
-            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.amber_background));
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(getContext(), R.color.bright_text));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.amber_background));
             binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(this, android.R.drawable.star_big_on), null,null,null);
+                    ContextCompat.getDrawable(getContext(), android.R.drawable.star_big_on), null,null,null);
         } else {
             binding.btnFavourites.setText(R.string.add_to_favourites);
-            binding.btnFavourites.setTextColor(ContextCompat.getColor(this, R.color.colorAccentYellow));
-            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(this, R.color.background_transparent));
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccentYellow));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.background_transparent));
             binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(this, android.R.drawable.btn_star_big_off), null,null,null);
+                    ContextCompat.getDrawable(getContext(), android.R.drawable.btn_star_big_off), null,null,null);
         }
     }
 }

@@ -1,8 +1,11 @@
 package com.manzo.popularmovies.utilities;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.manzo.popularmovies.R;
 import com.manzo.popularmovies.data.Movie;
@@ -27,6 +30,10 @@ public class NetworkUtils {
 
     public interface AsyncTaskCompletedListener {
         void onAsyncTaskCompleted(List<Movie> result);
+    }
+
+    public interface SubMenuItemClickedListener {
+        void onSubMenuItemClicked(MenuItem item);
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {

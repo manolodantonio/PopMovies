@@ -2,7 +2,7 @@ package com.manzo.popularmovies;
 
 
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,18 +23,17 @@ import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
 import com.manzo.popularmovies.utilities.NetworkUtils;
 
-import org.json.JSONException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieItemClickListener,
-        NetworkUtils.AsyncTaskCompletedListener {
+        NetworkUtils.AsyncTaskCompletedListener,
+        NetworkUtils.SubMenuItemClickedListener {
 
 
-    final GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+    public GridLayoutManager gridLayoutManager;
     final MovieAdapter movieAdapter = new MovieAdapter(this);
     public RecyclerView rv_mainList;
     public ProgressBar clpb_empty;
@@ -42,12 +43,31 @@ public class MainActivity extends AppCompatActivity implements
     private String currentSortOrder;
     private int page = 1;
     private boolean isLoadingMoreMovies = false;
+    public static boolean isMasterDetail = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /////////// LAYOUT SETUP
+        isMasterDetail = (findViewById(R.id.fl_movie_detail_container) != null);
+
+        int glSpanCount = 2; //todo constants?
+        int glOrientation = GridLayoutManager.VERTICAL;
+        if (!isMasterDetail &&
+                getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // is a small screen in landscape orientation
+            glSpanCount = 1;
+            glOrientation = GridLayoutManager.HORIZONTAL;
+//            findViewById(R.id.iv_item_poster).setLayoutParams(
+//                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//            findViewById(R.id.ll_movie_container).setLayoutParams(
+//                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        gridLayoutManager = new GridLayoutManager(this, glSpanCount, glOrientation, false);
+        ////////////
 
         currentSortOrder = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(getString(R.string.pref_sorting_key),
@@ -63,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements
 
 
     }
+
+
 
     @Override
     protected void onResume() {
@@ -88,20 +110,64 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_settings:
-                Intent startOptions = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(startOptions);
-                return true;
+//            case R.id.action_settings:
+//                Intent startOptions = new Intent(MainActivity.this, SettingsActivity.class);
+//                startActivity(startOptions);
+//                return true;
         }
+
+
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onSubMenuItemClicked(MenuItem item) {
+        String selectedSortOrder = null;
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_menu_most_popular:
+                selectedSortOrder = getString(R.string.pref_key_popularity);
+                break;
+            case R.id.action_menu_top_rated:
+                selectedSortOrder = getString(R.string.pref_key_toprated);
+                break;
+            case R.id.action_menu_favourites:
+                selectedSortOrder = getString(R.string.pref_key_favourites);
+                break;
+            default:
+                selectedSortOrder = getString(R.string.pref_key_popularity);
+                break;
+        }
+
+        if (selectedSortOrder != null) {
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit().putString(
+                    getString(R.string.pref_sorting_key), selectedSortOrder)
+                    .commit();
+            onResume();
+        }
+
+    }
+
+
+
     @Override
     public void onMovieItemClick(int clickedItemIndex) {
-        Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
         Movie clickedMovie = movieAdapter.moviesList.get(clickedItemIndex);
-        detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
-        startActivity(detailActivity);
+        if (isMasterDetail) {
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(getString(R.string.intent_key_moviedata), clickedMovie);
+            MovieDetailFragment fragmentActivity = new MovieDetailFragment();
+            fragmentActivity.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fl_movie_detail_container, fragmentActivity)
+                    .commit();
+        } else {
+            Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
+            detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
+            startActivity(detailActivity);
+        }
     }
 
 
@@ -160,38 +226,42 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void switchLoadingStatus() {
+        FrameLayout masterDetail = (FrameLayout)findViewById(R.id.fl_masterdetail_container);
         if (clpb_empty.getVisibility() == View.GONE) {
+
             // Progressbar is gone, List is visible
                 if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
                     // is Favourites
                     if (movieAdapter.getItemCount() == 0) {
+
                         // List is empty
-                        rv_mainList.setVisibility(View.GONE);
+                        masterDetail.setVisibility(View.GONE);
 
                         clpb_empty.setVisibility(View.GONE);
                         tv_error.setVisibility(View.VISIBLE);
                         tv_error.setText(R.string.error_no_favs);
                     } else {
                         // List is populated
-                        rv_mainList.setVisibility(View.VISIBLE);
+                        masterDetail.setVisibility(View.VISIBLE);
 
                         clpb_empty.setVisibility(View.GONE);
                         tv_error.setVisibility(View.GONE);
                     }
-                } else if (NetworkUtils.isOnline(this)) {
-
+                } else if (NetworkUtils.isOnline(this)) {  // is fetching from internet
+                    // no internet connection
                     if (isLoadingMoreMovies){
-                        rv_mainList.setVisibility(View.VISIBLE);
+                        masterDetail.setVisibility(View.VISIBLE);
 
                         clpb_empty.setVisibility(View.VISIBLE);
                     } else {
-                        rv_mainList.setVisibility(View.GONE);
+                        masterDetail.setVisibility(View.GONE);
 
                         clpb_empty.setVisibility(View.VISIBLE);
                     }
                     tv_error.setVisibility(View.GONE);
                 } else {
-                    rv_mainList.setVisibility(View.GONE);
+                    // internet connection ok
+                    masterDetail.setVisibility(View.GONE);
 
                     clpb_empty.setVisibility(View.GONE);
                     tv_error.setVisibility(View.VISIBLE);
@@ -199,11 +269,13 @@ public class MainActivity extends AppCompatActivity implements
                 }
         } else {
             // List is gone, Progressbar is visible
-            rv_mainList.setVisibility(View.VISIBLE);
+            masterDetail.setVisibility(View.VISIBLE);
 
             clpb_empty.setVisibility(View.GONE);
             tv_error.setVisibility(View.GONE);
+
         }
+
     }
 
     private void setActionBarTitle() {
