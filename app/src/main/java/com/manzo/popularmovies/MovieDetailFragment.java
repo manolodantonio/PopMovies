@@ -46,9 +46,9 @@ public class MovieDetailFragment extends Fragment
         implements TrailerAdapter.TrailerClickListener, ReviewAdapter.ReviewClickListener {
 
     private static final int REQUEST_WRITE_STORAGE = 111;
-    final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+    final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     final TrailerAdapter trailerAdapter = new TrailerAdapter(this);
-    final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getContext());
+    final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getActivity());
     final ReviewAdapter reviewAdapter = new ReviewAdapter(this);
     private ActivityMovieDetailBinding binding;
 
@@ -60,19 +60,13 @@ public class MovieDetailFragment extends Fragment
 
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        // Data binding sets content view and binds data to views in just few steps!
-        binding = DataBindingUtil.inflate(inflater, R.layout.activity_movie_detail, container, false);
         final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
-        binding.setMovie(movieData);
-
-
         // Poster
-        Picasso.with(getContext())
+        Picasso.with(getActivity())
                 .load(movieData.getImageLink())
                 .into(binding.ivDetailPoster);
 
@@ -85,18 +79,18 @@ public class MovieDetailFragment extends Fragment
         binding.cdRatingCircle.setAnimDuration(1500);
         binding.cdRatingCircle.setTextSize(16f);
         int ratingColor;
-        if (percent < 45) {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccent);}
-        else if (percent < 70) {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccentYellow);}
-        else {ratingColor = ContextCompat.getColor(getContext(), R.color.colorAccentGreen);}
+        if (percent < 45) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccent);}
+        else if (percent < 70) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentYellow);}
+        else {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentGreen);}
         binding.cdRatingCircle.setColor(ratingColor);
-        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(getContext(), R.color.bright_text));
-        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
+        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(getActivity(), R.color.bright_text));
+        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
         binding.cdRatingCircle.setValueWidthPercent(25f);
         binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
         binding.cdRatingCircle.showValue(percent, 100f, true);
 
         // Start Volley
-        final RequestQueue queue = Volley.newRequestQueue(getContext());
+        final RequestQueue queue = Volley.newRequestQueue(getActivity());
         // Trailers
         binding.rvTrailersList.setAdapter(trailerAdapter);
         binding.rvTrailersList.setLayoutManager(trailersLayoutManager);
@@ -115,12 +109,69 @@ public class MovieDetailFragment extends Fragment
 
         // Favs Buttons
         setupFavsButton();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        // Data binding sets content view and binds data to views in just few steps!
+        binding = DataBindingUtil.inflate(inflater, R.layout.activity_movie_detail, container, false);
+        final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
+        binding.setMovie(movieData);
+
+
+//        // Poster
+//        Picasso.with(getActivity())
+//                .load(movieData.getImageLink())
+//                .into(binding.ivDetailPoster);
+//
+//        // Rating circle
+//        String rating = movieData.getRating();
+//        if (rating.contains(".")) {
+//            rating = rating.replace(".","");}
+//        else rating += "0";
+//        float percent = Float.parseFloat(rating);
+//        binding.cdRatingCircle.setAnimDuration(1500);
+//        binding.cdRatingCircle.setTextSize(16f);
+//        int ratingColor;
+//        if (percent < 45) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccent);}
+//        else if (percent < 70) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentYellow);}
+//        else {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentGreen);}
+//        binding.cdRatingCircle.setColor(ratingColor);
+//        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(getActivity(), R.color.bright_text));
+//        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
+//        binding.cdRatingCircle.setValueWidthPercent(25f);
+//        binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
+//        binding.cdRatingCircle.showValue(percent, 100f, true);
+//
+//        // Start Volley
+//        final RequestQueue queue = Volley.newRequestQueue(getActivity());
+//        // Trailers
+//        binding.rvTrailersList.setAdapter(trailerAdapter);
+//        binding.rvTrailersList.setLayoutManager(trailersLayoutManager);
+//        queue.add(fetchVideos(movieData));
+//
+////        Reviews
+//        binding.rvReviewsList.setAdapter(reviewAdapter);
+//        binding.rvReviewsList.setLayoutManager(reviewLayoutManager);
+//        queue.add(fetchReviews(movieData));
+//
+//        // Reopen review detail if reading while saveinstancestate
+//        if (savedInstanceState != null) {
+//            currentReviewReading = savedInstanceState.getParcelable(getString(R.string.outstate_review));
+//            if (currentReviewReading != null) {openReviewDialog(currentReviewReading);}
+//        }
+//
+//        // Favs Buttons
+//        setupFavsButton();
 
         return binding.getRoot();
     }
 
     private void setupFavsButton() {
-        Cursor cursor = getContext().getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
+        Cursor cursor = getActivity().getContentResolver().query(DbContract.UserFavourites.URI_CONTENT,
                 new String[]{DbContract.UserFavourites._ID},
                 DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
                 new String[]{
@@ -162,7 +213,7 @@ public class MovieDetailFragment extends Fragment
                     public void onResponse(String response) {
                         try {
                             List<Trailer> videoList = MovieDbUtilities
-                                    .jsonStringToTrailersList(getContext(), response);
+                                    .jsonStringToTrailersList(getActivity(), response);
                             trailerAdapter.swapList(videoList);
                             switchTrailerLoading();
                         } catch (JSONException e) {
@@ -194,7 +245,7 @@ public class MovieDetailFragment extends Fragment
                     public void onResponse(String response) {
                         try {
                             List<Review> reviewList = MovieDbUtilities
-                                    .jsonStringToReviewsList(getContext(), response);
+                                    .jsonStringToReviewsList(getActivity(), response);
                             reviewAdapter.swapList(reviewList);
                             switchReviewLoading();
                         } catch (JSONException e) {
@@ -228,7 +279,7 @@ public class MovieDetailFragment extends Fragment
                 binding.clpbTrailers.setVisibility(View.GONE);
                 binding.rvTrailersList.setVisibility(View.GONE);
                 binding.tvTrailersError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(getContext())) {
+                if (NetworkUtils.isOnline(getActivity())) {
                     binding.tvTrailersError.setText(R.string.error_no_videos);
                 } else binding.tvTrailersError.setText(R.string.error_no_internet);
             }
@@ -251,7 +302,7 @@ public class MovieDetailFragment extends Fragment
                 binding.clpbReviews.setVisibility(View.GONE);
                 binding.rvReviewsList.setVisibility(View.GONE);
                 binding.tvReviewsError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(getContext())) {
+                if (NetworkUtils.isOnline(getActivity())) {
                     binding.tvReviewsError.setText(R.string.error_no_review);
                 } else binding.tvReviewsError.setText(R.string.error_no_internet);
             }
@@ -272,7 +323,7 @@ public class MovieDetailFragment extends Fragment
 
     private void openReviewDialog(final Review review) {
         currentReviewReading = review;
-        LayoutInflater inflater= LayoutInflater.from(getContext());
+        LayoutInflater inflater= LayoutInflater.from(getActivity());
         View view=inflater.inflate(R.layout.dialog_review, null);
 
         TextView tv_content = (TextView) view.findViewById(R.id.tv_dialog_content);
@@ -284,10 +335,10 @@ public class MovieDetailFragment extends Fragment
         ImageView iv_siteicon = (ImageView) view.findViewById(R.id.iv_dialog_site_icon);
         // Check review site to choose icon
         if (review.getUrl().contains(getString(R.string.key_moviedb))) {
-            Picasso.with(getContext()).load(R.mipmap.ic_tmdb).into(iv_siteicon);
+            Picasso.with(getActivity()).load(R.mipmap.ic_tmdb).into(iv_siteicon);
         }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         builder.setPositiveButton(R.string.btn_openinbrowser, new DialogInterface.OnClickListener() {
             @Override
@@ -316,10 +367,10 @@ public class MovieDetailFragment extends Fragment
 //                    REQUEST_WRITE_STORAGE);
 //        } else {
             final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
-            Uri imageUri = MovieDbUtilities.imageDownload(movieData.getImageLink(), getContext());
+            Uri imageUri = MovieDbUtilities.imageDownload(movieData.getImageLink(), getActivity());
             Movie tempMovie = movieData;
             tempMovie.setImageLink(String.valueOf(imageUri));
-            Uri insertedUri = getContext().getContentResolver().insert(
+            Uri insertedUri = getActivity().getContentResolver().insert(
                     DbContract.UserFavourites.URI_CONTENT,
                     MovieDbUtilities.movieToContentValues(tempMovie));
             Log.d("Inserted uri: ", String.valueOf(insertedUri));
@@ -349,7 +400,7 @@ public class MovieDetailFragment extends Fragment
 
     private void removeFromFavs() {
         final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
-        int deleted = getContext().getContentResolver().delete(
+        int deleted = getActivity().getContentResolver().delete(
                 DbContract.UserFavourites.URI_CONTENT,
                 DbContract.UserFavourites.COLUMN_TMDB_ID + "=?",
                 new String[]{movieData.getId()});
@@ -361,16 +412,16 @@ public class MovieDetailFragment extends Fragment
     private void switchFavsButton() {
         if (binding.btnFavourites.getText().equals(getString(R.string.add_to_favourites))) {
             binding.btnFavourites.setText(R.string.one_of_my_favs);
-            binding.btnFavourites.setTextColor(ContextCompat.getColor(getContext(), R.color.bright_text));
-            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.amber_background));
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(getActivity(), R.color.bright_text));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.amber_background));
             binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(getContext(), android.R.drawable.star_big_on), null,null,null);
+                    ContextCompat.getDrawable(getActivity(), android.R.drawable.star_big_on), null,null,null);
         } else {
             binding.btnFavourites.setText(R.string.add_to_favourites);
-            binding.btnFavourites.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccentYellow));
-            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.background_transparent));
+            binding.btnFavourites.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccentYellow));
+            binding.btnFavourites.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_transparent));
             binding.btnFavourites.setCompoundDrawablesWithIntrinsicBounds(
-                    ContextCompat.getDrawable(getContext(), android.R.drawable.btn_star_big_off), null,null,null);
+                    ContextCompat.getDrawable(getActivity(), android.R.drawable.btn_star_big_off), null,null,null);
         }
     }
 }

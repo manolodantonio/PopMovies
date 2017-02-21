@@ -3,6 +3,7 @@ package com.manzo.popularmovies;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements
         NetworkUtils.SubMenuItemClickedListener {
 
 
+    private static final int MOVIE_DETAIL_CODE = 657;
+    private static final String FRAGMENT_DETAIL = "fragment detail";
     public GridLayoutManager gridLayoutManager;
     final MovieAdapter movieAdapter = new MovieAdapter(this);
     public RecyclerView rv_mainList;
@@ -53,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements
 
         /////////// LAYOUT SETUP
         isMasterDetail = (findViewById(R.id.fl_movie_detail_container) != null);
+        // Todo: load same detail as masterdetail
+//        if (!isMasterDetail) {
+//            startActivityForResult();
+//        }
 
         int glSpanCount = 2; //todo constants?
         int glOrientation = GridLayoutManager.VERTICAL;
@@ -156,20 +163,36 @@ public class MainActivity extends AppCompatActivity implements
     public void onMovieItemClick(int clickedItemIndex) {
         Movie clickedMovie = movieAdapter.moviesList.get(clickedItemIndex);
         if (isMasterDetail) {
-            Bundle arguments = new Bundle();
-            arguments.putParcelable(getString(R.string.intent_key_moviedata), clickedMovie);
-            MovieDetailFragment fragmentActivity = new MovieDetailFragment();
-            fragmentActivity.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fl_movie_detail_container, fragmentActivity)
-                    .commit();
+            switchDetailFragment(clickedMovie);
         } else {
+            Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAIL);
+            if(fragmentToDestroy != null) {
+                getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
+
             Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
             detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
-            startActivity(detailActivity);
+            startActivityForResult(detailActivity, MOVIE_DETAIL_CODE);
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (isMasterDetail && requestCode == MOVIE_DETAIL_CODE) {
+            Movie currentMovie = data.getParcelableExtra(getString(R.string.intent_key_moviedata));
+            switchDetailFragment(currentMovie);
+        }
+    }
+
+    private void switchDetailFragment(Movie movie) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(getString(R.string.intent_key_moviedata), movie);
+        MovieDetailFragment fragmentActivity = new MovieDetailFragment();
+        fragmentActivity.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fl_movie_detail_container, fragmentActivity, FRAGMENT_DETAIL)
+                .commitNow();
+    }
 
     @Override
     public void onAsyncTaskCompleted(List<Movie> result) {
