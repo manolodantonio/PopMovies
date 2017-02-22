@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,7 +32,7 @@ import com.manzo.popularmovies.data.Trailer;
 import com.manzo.popularmovies.databinding.ActivityMovieDetailBinding;
 import com.manzo.popularmovies.listComponents.ReviewAdapter;
 import com.manzo.popularmovies.listComponents.TrailerAdapter;
-import com.manzo.popularmovies.utilities.NetworkUtils;
+import com.manzo.popularmovies.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -279,7 +278,7 @@ public class MovieDetailFragment extends Fragment
                 binding.clpbTrailers.setVisibility(View.GONE);
                 binding.rvTrailersList.setVisibility(View.GONE);
                 binding.tvTrailersError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(getActivity())) {
+                if (Utils.isOnline(getActivity())) {
                     binding.tvTrailersError.setText(R.string.error_no_videos);
                 } else binding.tvTrailersError.setText(R.string.error_no_internet);
             }
@@ -302,7 +301,7 @@ public class MovieDetailFragment extends Fragment
                 binding.clpbReviews.setVisibility(View.GONE);
                 binding.rvReviewsList.setVisibility(View.GONE);
                 binding.tvReviewsError.setVisibility(View.VISIBLE);
-                if (NetworkUtils.isOnline(getActivity())) {
+                if (Utils.isOnline(getActivity())) {
                     binding.tvReviewsError.setText(R.string.error_no_review);
                 } else binding.tvReviewsError.setText(R.string.error_no_internet);
             }

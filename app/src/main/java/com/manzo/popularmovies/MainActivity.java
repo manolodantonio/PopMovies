@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 import com.manzo.popularmovies.data.Movie;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
-import com.manzo.popularmovies.utilities.NetworkUtils;
+import com.manzo.popularmovies.utilities.Utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,8 +29,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieItemClickListener,
-        NetworkUtils.AsyncTaskCompletedListener,
-        NetworkUtils.SubMenuItemClickedListener {
+        Utils.AsyncTaskCompletedListener,
+        Utils.SubMenuItemClickedListener {
 
 
     private static final int MOVIE_DETAIL_CODE = 657;
@@ -47,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements
     private int page = 1;
     private boolean isLoadingMoreMovies = false;
     public static boolean isMasterDetail = false;
+    private Movie currentMovie;
 
 
     @Override
@@ -56,22 +56,15 @@ public class MainActivity extends AppCompatActivity implements
 
         /////////// LAYOUT SETUP
         isMasterDetail = (findViewById(R.id.fl_movie_detail_container) != null);
-        // Todo: load same detail as masterdetail
-//        if (!isMasterDetail) {
-//            startActivityForResult();
-//        }
 
-        int glSpanCount = 2; //todo constants?
+
+        int glSpanCount = Integer.parseInt(getString(R.string.grid_element_vertical));
         int glOrientation = GridLayoutManager.VERTICAL;
-        if (!isMasterDetail &&
+        if (!isMasterDetail && !Utils.isTablet(this) &&
                 getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // is a small screen in landscape orientation
-            glSpanCount = 1;
+            glSpanCount =  Integer.parseInt(getString(R.string.grid_element_horizontal));
             glOrientation = GridLayoutManager.HORIZONTAL;
-//            findViewById(R.id.iv_item_poster).setLayoutParams(
-//                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//            findViewById(R.id.ll_movie_container).setLayoutParams(
-//                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
         gridLayoutManager = new GridLayoutManager(this, glSpanCount, glOrientation, false);
         ////////////
@@ -91,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -103,8 +94,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(getString(R.string.intent_key_moviedata), currentMovie);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -161,16 +155,16 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMovieItemClick(int clickedItemIndex) {
-        Movie clickedMovie = movieAdapter.moviesList.get(clickedItemIndex);
+        currentMovie = movieAdapter.moviesList.get(clickedItemIndex);
         if (isMasterDetail) {
-            switchDetailFragment(clickedMovie);
+            switchDetailFragment(currentMovie);
         } else {
             Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAIL);
             if(fragmentToDestroy != null) {
                 getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
 
             Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
-            detailActivity.putExtra(getString(R.string.intent_key_moviedata), clickedMovie);
+            detailActivity.putExtra(getString(R.string.intent_key_moviedata), currentMovie);
             startActivityForResult(detailActivity, MOVIE_DETAIL_CODE);
         }
     }
@@ -178,8 +172,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (isMasterDetail && requestCode == MOVIE_DETAIL_CODE) {
-            Movie currentMovie = data.getParcelableExtra(getString(R.string.intent_key_moviedata));
+        if (isMasterDetail && Utils.isTablet(this) && requestCode == MOVIE_DETAIL_CODE) {
+            currentMovie = data.getParcelableExtra(getString(R.string.intent_key_moviedata));
             switchDetailFragment(currentMovie);
         }
     }
@@ -196,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onAsyncTaskCompleted(List<Movie> result) {
-//            List<Movie> arrayListDB = MovieDbUtilities.jsonStringToMovieList(this, result);
         if (isLoadingMoreMovies) {
             isLoadingMoreMovies = false;
             movieAdapter.moviesList.addAll(result);
@@ -232,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
             new MovieDbUtilities.LoadFavourites(this, this).execute();
-        } else if (NetworkUtils.isOnline(this)) {
+        } else if (Utils.isOnline(this)) {
             URL fetchURL = null;
             try {
                 fetchURL = new URL(
@@ -270,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements
                         clpb_empty.setVisibility(View.GONE);
                         tv_error.setVisibility(View.GONE);
                     }
-                } else if (NetworkUtils.isOnline(this)) {  // is fetching from internet
+                } else if (Utils.isOnline(this)) {  // is fetching from internet
                     // no internet connection
                     if (isLoadingMoreMovies){
                         masterDetail.setVisibility(View.VISIBLE);

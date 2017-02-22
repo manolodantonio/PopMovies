@@ -40,6 +40,12 @@
     <string name="jskey_content">content</string>
     <string name="jskey_url">url</string>
 
+    <!--RECYCLERVIEW CONSTANTS-->
+
+    <string name="grid_element_horizontal">1</string>
+    <string name="grid_element_vertical">2</string>
+
+
 
     <!-- SETTINGS -->
 

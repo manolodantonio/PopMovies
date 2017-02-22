@@ -2,6 +2,7 @@ package com.manzo.popularmovies.utilities;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.view.MenuItem;
@@ -26,7 +27,7 @@ import java.util.Scanner;
  * Created by Manolo on 01/02/2017.
  */
 
-public class NetworkUtils {
+public class Utils {
 
     public interface AsyncTaskCompletedListener {
         void onAsyncTaskCompleted(List<Movie> result);
@@ -63,5 +64,10 @@ public class NetworkUtils {
     }
 
 
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
 
 }

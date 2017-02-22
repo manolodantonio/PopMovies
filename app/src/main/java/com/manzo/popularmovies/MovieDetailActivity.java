@@ -1,49 +1,12 @@
 package com.manzo.popularmovies;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.databinding.DataBindingUtil;
-import android.net.Uri;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.manzo.popularmovies.data.DbContract;
-import com.manzo.popularmovies.data.Movie;
-import com.manzo.popularmovies.data.MovieDbUtilities;
-import com.manzo.popularmovies.data.Review;
-import com.manzo.popularmovies.data.Trailer;
-import com.manzo.popularmovies.databinding.ActivityMovieDetailBinding;
-import com.manzo.popularmovies.listComponents.ReviewAdapter;
-import com.manzo.popularmovies.listComponents.TrailerAdapter;
-import com.manzo.popularmovies.utilities.NetworkUtils;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-
-import java.text.DecimalFormat;
-import java.util.List;
+import com.manzo.popularmovies.utilities.Utils;
 
 
 public class MovieDetailActivity extends AppCompatActivity
@@ -62,10 +25,14 @@ public class MovieDetailActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY);
-            if(fragmentToDestroy != null) {
-                getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
+        // Clean previous fragment to prevent context issues
+        Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_ACTIVITY);
+        if(fragmentToDestroy != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
+
+        if (Utils.isTablet(this) &&
+                getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            // Is a tablet in landscape
             setResult(RESULT_OK,
                     new Intent().putExtra(
                             getString(R.string.intent_key_moviedata),
@@ -254,7 +221,7 @@ public class MovieDetailActivity extends AppCompatActivity
 //                binding.clpbTrailers.setVisibility(View.GONE);
 //                binding.rvTrailersList.setVisibility(View.GONE);
 //                binding.tvTrailersError.setVisibility(View.VISIBLE);
-//                if (NetworkUtils.isOnline(this)) {
+//                if (Utils.isOnline(this)) {
 //                    binding.tvTrailersError.setText(R.string.error_no_videos);
 //                } else binding.tvTrailersError.setText(R.string.error_no_internet);
 //            }
@@ -277,7 +244,7 @@ public class MovieDetailActivity extends AppCompatActivity
 //                binding.clpbReviews.setVisibility(View.GONE);
 //                binding.rvReviewsList.setVisibility(View.GONE);
 //                binding.tvReviewsError.setVisibility(View.VISIBLE);
-//                if (NetworkUtils.isOnline(this)) {
+//                if (Utils.isOnline(this)) {
 //                    binding.tvReviewsError.setText(R.string.error_no_review);
 //                } else binding.tvReviewsError.setText(R.string.error_no_internet);
 //            }

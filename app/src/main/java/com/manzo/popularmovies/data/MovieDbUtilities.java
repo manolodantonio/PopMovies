@@ -3,16 +3,13 @@ package com.manzo.popularmovies.data;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
 
 import com.manzo.popularmovies.R;
-import com.manzo.popularmovies.utilities.NetworkUtils;
+import com.manzo.popularmovies.utilities.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -57,10 +54,10 @@ public class MovieDbUtilities {
 
     public static class LoadFavourites extends AsyncTask<Void, Void, List<Movie>> {
 
-        NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+        Utils.AsyncTaskCompletedListener asyncTaskCompletedListener;
         Context context;
 
-        public LoadFavourites(NetworkUtils.AsyncTaskCompletedListener listener, Context context) {
+        public LoadFavourites(Utils.AsyncTaskCompletedListener listener, Context context) {
             this.asyncTaskCompletedListener = listener;
             this.context = context;
         }
@@ -84,10 +81,10 @@ public class MovieDbUtilities {
 
     public static class RequestToMovieDB extends AsyncTask<URL, Void, List<Movie>> {
 
-        NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+        Utils.AsyncTaskCompletedListener asyncTaskCompletedListener;
         Context context;
 
-        public RequestToMovieDB(NetworkUtils.AsyncTaskCompletedListener listener, Context context) {
+        public RequestToMovieDB(Utils.AsyncTaskCompletedListener listener, Context context) {
             this.asyncTaskCompletedListener = listener;
             this.context = context;
         }
@@ -101,7 +98,7 @@ public class MovieDbUtilities {
         @Override
         protected List<Movie> doInBackground(URL... urls) {
             try {
-                String jsonString = NetworkUtils.getResponseFromHttpUrl(urls[0]);
+                String jsonString = Utils.getResponseFromHttpUrl(urls[0]);
                 return MovieDbUtilities.jsonStringToMovieList(context, jsonString);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -340,10 +337,10 @@ public class MovieDbUtilities {
 //
 //        String url;
 //        Context context;
-//        NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener;
+//        Utils.AsyncTaskCompletedListener asyncTaskCompletedListener;
 //        final File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + url);
 //
-//        public ImageDownload(String url, Context context, NetworkUtils.AsyncTaskCompletedListener asyncTaskCompletedListener) {
+//        public ImageDownload(String url, Context context, Utils.AsyncTaskCompletedListener asyncTaskCompletedListener) {
 //
 //            this.url = url;
 //            this.context = context;
