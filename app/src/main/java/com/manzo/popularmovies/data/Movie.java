@@ -3,6 +3,8 @@ package com.manzo.popularmovies.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Manolo on 06/02/2017.
  */
@@ -11,11 +13,22 @@ public class Movie implements Parcelable {
 
 
     private String id;
+
+    @SerializedName(value="poster_path")
     private String imageLink;
+
     private String title;
+
+    @SerializedName(value="release_date")
     private String releaseDate;
+
+    @SerializedName(value="vote_average")
     private String rating;
+
+    @SerializedName(value="original_title")
     private String originalTitle;
+
+    @SerializedName(value="overview")
     private String synopsis;
 
     public Movie(

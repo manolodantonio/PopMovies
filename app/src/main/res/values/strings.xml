@@ -103,5 +103,8 @@
     <string name="action_sort_by">Sort By</string>
     <string name="builder_base_youtube_image">http://img.youtube.com/vi/</string>
     <string name="builer_youimage_quality0">/0.jpg</string>
+    <string name="intent_key_movieslist">intent key movieslist</string>
+    <string name="intent_scroll_position">intent scroll position</string>
+    <string name="intent_scroll_page">intent scroll page</string>
 
 </resources>

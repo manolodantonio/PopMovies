@@ -18,33 +18,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.manzo.popularmovies.data.ApiServiceGenerator;
 import com.manzo.popularmovies.data.DbContract;
+import com.manzo.popularmovies.data.ImageContainer;
 import com.manzo.popularmovies.data.Movie;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.data.Review;
+import com.manzo.popularmovies.data.ReviewContainer;
 import com.manzo.popularmovies.data.Trailer;
+import com.manzo.popularmovies.data.VideoContainer;
 import com.manzo.popularmovies.databinding.ActivityMovieDetailBinding;
 import com.manzo.popularmovies.listComponents.ReviewAdapter;
 import com.manzo.popularmovies.listComponents.TrailerAdapter;
 import com.manzo.popularmovies.utilities.Utils;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONException;
-
 import java.text.DecimalFormat;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 public class MovieDetailFragment extends Fragment
         implements TrailerAdapter.TrailerClickListener, ReviewAdapter.ReviewClickListener {
 
-    private static final int REQUEST_WRITE_STORAGE = 111;
     final LinearLayoutManager trailersLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
     final TrailerAdapter trailerAdapter = new TrailerAdapter(this);
     final LinearLayoutManager reviewLayoutManager = new LinearLayoutManager(getActivity());
@@ -69,6 +67,8 @@ public class MovieDetailFragment extends Fragment
                 .load(movieData.getImageLink())
                 .into(binding.ivDetailPoster);
 
+
+
         // Rating circle
         String rating = movieData.getRating();
         if (rating.contains(".")) {
@@ -88,17 +88,23 @@ public class MovieDetailFragment extends Fragment
         binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
         binding.cdRatingCircle.showValue(percent, 100f, true);
 
+
+
         // Start Volley
-        final RequestQueue queue = Volley.newRequestQueue(getActivity());
+//        final RequestQueue queue = Volley.newRequestQueue(getActivity());
+        // HeaderImage
+//        requestImages(MainActivity.ApiClient, movieData.getId());
         // Trailers
         binding.rvTrailersList.setAdapter(trailerAdapter);
         binding.rvTrailersList.setLayoutManager(trailersLayoutManager);
-        queue.add(fetchVideos(movieData));
+//        queue.add(fetchVideos(movieData));
+        requestVideos(MainActivity.ApiClient, movieData.getId());
 
 //        Reviews
         binding.rvReviewsList.setAdapter(reviewAdapter);
         binding.rvReviewsList.setLayoutManager(reviewLayoutManager);
-        queue.add(fetchReviews(movieData));
+//        queue.add(fetchReviews(movieData));
+        requestReviews(MainActivity.ApiClient, movieData.getId());
 
         // Reopen review detail if reading while saveinstancestate
         if (savedInstanceState != null) {
@@ -116,55 +122,12 @@ public class MovieDetailFragment extends Fragment
         super.onCreateView(inflater, container, savedInstanceState);
 
         // Data binding sets content view and binds data to views in just few steps!
+
         binding = DataBindingUtil.inflate(inflater, R.layout.activity_movie_detail, container, false);
         final Movie movieData = getArguments().getParcelable(getString(R.string.intent_key_moviedata));
         binding.setMovie(movieData);
 
 
-//        // Poster
-//        Picasso.with(getActivity())
-//                .load(movieData.getImageLink())
-//                .into(binding.ivDetailPoster);
-//
-//        // Rating circle
-//        String rating = movieData.getRating();
-//        if (rating.contains(".")) {
-//            rating = rating.replace(".","");}
-//        else rating += "0";
-//        float percent = Float.parseFloat(rating);
-//        binding.cdRatingCircle.setAnimDuration(1500);
-//        binding.cdRatingCircle.setTextSize(16f);
-//        int ratingColor;
-//        if (percent < 45) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccent);}
-//        else if (percent < 70) {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentYellow);}
-//        else {ratingColor = ContextCompat.getColor(getActivity(), R.color.colorAccentGreen);}
-//        binding.cdRatingCircle.setColor(ratingColor);
-//        binding.cdRatingCircle.setTextColor(ContextCompat.getColor(getActivity(), R.color.bright_text));
-//        binding.cdRatingCircle.setInnerCircleColor(ContextCompat.getColor(getActivity(), R.color.colorPrimary));
-//        binding.cdRatingCircle.setValueWidthPercent(25f);
-//        binding.cdRatingCircle.setDecimalFormat(new DecimalFormat("##0"));
-//        binding.cdRatingCircle.showValue(percent, 100f, true);
-//
-//        // Start Volley
-//        final RequestQueue queue = Volley.newRequestQueue(getActivity());
-//        // Trailers
-//        binding.rvTrailersList.setAdapter(trailerAdapter);
-//        binding.rvTrailersList.setLayoutManager(trailersLayoutManager);
-//        queue.add(fetchVideos(movieData));
-//
-////        Reviews
-//        binding.rvReviewsList.setAdapter(reviewAdapter);
-//        binding.rvReviewsList.setLayoutManager(reviewLayoutManager);
-//        queue.add(fetchReviews(movieData));
-//
-//        // Reopen review detail if reading while saveinstancestate
-//        if (savedInstanceState != null) {
-//            currentReviewReading = savedInstanceState.getParcelable(getString(R.string.outstate_review));
-//            if (currentReviewReading != null) {openReviewDialog(currentReviewReading);}
-//        }
-//
-//        // Favs Buttons
-//        setupFavsButton();
 
         return binding.getRoot();
     }
@@ -198,69 +161,142 @@ public class MovieDetailFragment extends Fragment
         outState.putParcelable(getString(R.string.outstate_review), currentReviewReading);
     }
 
-    private StringRequest fetchVideos(Movie movieData) {
-        switchTrailerLoading();
-        final String videosAddress = getString(R.string.builder_baseurl) +
-                movieData.getId() + getString(R.string.builder_videos) +
-                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
-                getString(R.string.builder_language) + getString(R.string.builder_lang_enus);
-        return new StringRequest(
-                Request.Method.GET,
-                videosAddress,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            List<Trailer> videoList = MovieDbUtilities
-                                    .jsonStringToTrailersList(getActivity(), response);
-                            trailerAdapter.swapList(videoList);
-                            switchTrailerLoading();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            switchTrailerLoading();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        switchTrailerLoading();
-                        error.printStackTrace();
-                    }
+//    private StringRequest fetchVideos(Movie movieData) {
+//        switchTrailerLoading();
+//        final String videosAddress = getString(R.string.builder_baseurl) +
+//                movieData.getId() + getString(R.string.builder_videos) +
+//                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
+//                getString(R.string.builder_language) + getString(R.string.builder_lang_enus);
+//        return new StringRequest(
+//                Request.Method.GET,
+//                videosAddress,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        try {
+//                            if (isAdded()) {
+//                                List<Trailer> videoList = MovieDbUtilities
+//                                        .jsonStringToTrailersList(getActivity(), response);
+//                                trailerAdapter.swapList(videoList);
+//                                switchTrailerLoading();
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                            switchTrailerLoading();
+//                        }
+//                    }
+//                }, new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        switchTrailerLoading();
+//                        error.printStackTrace();
+//                    }
+//                }
+//        );
+//    }
+
+//    private StringRequest fetchReviews(Movie movieData) {
+//            switchReviewLoading();
+//            final String reviewAddress = getString(R.string.builder_baseurl) +
+//                    movieData.getId() + getString(R.string.builder_reviews) +
+//                    getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
+//                    getString(R.string.builder_language) + getString(R.string.builder_lang_enus);
+//
+//            return new StringRequest(
+//                    Request.Method.GET,
+//                    reviewAddress,
+//                    new Response.Listener<String>() {
+//                        @Override
+//                        public void onResponse(String response) {
+//                            try {
+//                                if (isAdded()) {
+//                                    List<Review> reviewList = MovieDbUtilities
+//                                            .jsonStringToReviewsList(getActivity(), response);
+//                                    reviewAdapter.swapList(reviewList);
+//                                    switchReviewLoading();
+//                                }
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                                switchReviewLoading();
+//                            }
+//                        }
+//                    }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//                    switchTrailerLoading();
+//                    error.printStackTrace();
+//                }
+//            }
+//            );
+//    }
+
+    private void requestReviews (ApiServiceGenerator.TMDBClient client, String movieId) {
+        switchReviewLoading();
+        final Call<ReviewContainer> reviewRequest = client.getReviews(movieId, getString(R.string.movieDB_API_v3));
+
+        reviewRequest.enqueue(new Callback<ReviewContainer>() {
+            @Override
+            public void onResponse(Call<ReviewContainer> call, retrofit2.Response<ReviewContainer> response) {
+                if (isAdded()) {
+                    List<Review> reviews = response.body().getReviews();
+                    reviewAdapter.swapList(reviews);
+                    switchReviewLoading();
                 }
-        );
+            }
+
+            @Override
+            public void onFailure(Call<ReviewContainer> call, Throwable t) {
+                switchReviewLoading();
+                t.printStackTrace();
+            }
+        });
     }
 
-    private StringRequest fetchReviews(Movie movieData) {
-        switchReviewLoading();
-        final String reviewAddress = getString(R.string.builder_baseurl) +
-                movieData.getId() + getString(R.string.builder_reviews) +
-                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
-                getString(R.string.builder_language) + getString(R.string.builder_lang_enus);
-        return new StringRequest(
-                Request.Method.GET,
-                reviewAddress,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            List<Review> reviewList = MovieDbUtilities
-                                    .jsonStringToReviewsList(getActivity(), response);
-                            reviewAdapter.swapList(reviewList);
-                            switchReviewLoading();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            switchReviewLoading();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+    private void requestVideos (ApiServiceGenerator.TMDBClient client, String movieId) {
+        switchTrailerLoading();
+        final Call<VideoContainer> videoRequest = client.getVideos(movieId, getString(R.string.movieDB_API_v3));
+
+        videoRequest.enqueue(new Callback<VideoContainer>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                switchTrailerLoading();
-                error.printStackTrace();
+            public void onResponse(Call<VideoContainer> call, retrofit2.Response<VideoContainer> response) {
+                if (isAdded()) {
+                    List<Trailer> videos = response.body().getVideos();
+                    trailerAdapter.swapList(videos);
+                    switchTrailerLoading();
+                }
             }
-        }
-        );
+
+            @Override
+            public void onFailure(Call<VideoContainer> call, Throwable t) {
+                t.printStackTrace();
+                switchTrailerLoading();
+            }
+        });
     }
+
+//    private void requestImages (ApiServiceGenerator.TMDBClient client, String movieId) {
+//        final Call<ImageContainer> videoRequest = client.getImages(movieId, getString(R.string.movieDB_API_v3));
+//
+//        videoRequest.enqueue(new Callback<ImageContainer>() {
+//            @Override
+//            public void onResponse(Call<ImageContainer> call, retrofit2.Response<ImageContainer> response) {
+//                if (isAdded()) {
+//                    List<ImageContainer.BackdropImage> backdropImages = response.body().getBackdropImages();
+//                    String headerImage = getString(R.string.builder_image_baseurl) +
+//                            getString(R.string.builder_image_quality_medium) +
+//                            backdropImages.get(0).getFile_path();
+//                    Picasso.with(getActivity())
+//                            .load(headerImage)
+//                            .into(binding.ivHeaderImage);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ImageContainer> call, Throwable t) {
+//                t.printStackTrace();
+//            }
+//        });
+//    }
 
     private void switchTrailerLoading() {
         if (binding.clpbTrailers.getVisibility() == View.GONE) {

@@ -22,4 +22,7 @@
     <dimen name="view_row_small">120dp</dimen>
     <dimen name="view_row_mid">170dp</dimen>
     <dimen name="view_row_icon">48dp</dimen>
+
+    <dimen name="textsize_tablet">18sp</dimen>
+    <dimen name="textsize_tablet_small">16sp</dimen>
 </resources>

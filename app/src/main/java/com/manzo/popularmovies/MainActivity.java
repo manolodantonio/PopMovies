@@ -3,6 +3,7 @@ package com.manzo.popularmovies;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,14 +19,21 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.manzo.popularmovies.data.ApiServiceGenerator;
 import com.manzo.popularmovies.data.Movie;
+import com.manzo.popularmovies.data.MovieContainer;
 import com.manzo.popularmovies.data.MovieDbUtilities;
 import com.manzo.popularmovies.listComponents.MovieAdapter;
 import com.manzo.popularmovies.utilities.Utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieItemClickListener,
@@ -35,6 +43,11 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int MOVIE_DETAIL_CODE = 657;
     private static final String FRAGMENT_DETAIL = "fragment detail";
+
+    public static final ApiServiceGenerator.TMDBClient ApiClient =
+            ApiServiceGenerator.createService(ApiServiceGenerator.TMDBClient.class);
+
+
     public GridLayoutManager gridLayoutManager;
     final MovieAdapter movieAdapter = new MovieAdapter(this);
     public RecyclerView rv_mainList;
@@ -47,12 +60,20 @@ public class MainActivity extends AppCompatActivity implements
     private boolean isLoadingMoreMovies = false;
     public static boolean isMasterDetail = false;
     private Movie currentMovie;
+    private List<Movie> currentMovieList;
+    private int currentPosition;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState != null) {
+            currentMovieList = savedInstanceState.getParcelableArrayList(getString(R.string.intent_key_movieslist));
+            currentPosition = savedInstanceState.getInt(getString(R.string.intent_scroll_position));
+            page = savedInstanceState.getInt(getString(R.string.intent_scroll_page));
+        }
 
         /////////// LAYOUT SETUP
         isMasterDetail = (findViewById(R.id.fl_movie_detail_container) != null);
@@ -95,9 +116,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAIL);
+        if(fragmentToDestroy != null) {
+            getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(getString(R.string.intent_key_moviedata), currentMovie);
+        outState.putParcelableArrayList(getString(R.string.intent_key_movieslist), new ArrayList<>(movieAdapter.getMoviesList()));
+        outState.putInt(getString(R.string.intent_scroll_position), gridLayoutManager.findFirstVisibleItemPosition());
+        outState.putInt(getString(R.string.intent_scroll_page), page);
     }
 
     @Override
@@ -159,9 +191,9 @@ public class MainActivity extends AppCompatActivity implements
         if (isMasterDetail) {
             switchDetailFragment(currentMovie);
         } else {
-            Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAIL);
-            if(fragmentToDestroy != null) {
-                getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
+//            Fragment fragmentToDestroy = getSupportFragmentManager().findFragmentByTag(FRAGMENT_DETAIL);
+//            if(fragmentToDestroy != null) {
+//                getSupportFragmentManager().beginTransaction().remove(fragmentToDestroy).commitNow();}
 
             Intent detailActivity = new Intent(MainActivity.this, MovieDetailActivity.class);
             detailActivity.putExtra(getString(R.string.intent_key_moviedata), currentMovie);
@@ -173,8 +205,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (isMasterDetail && Utils.isTablet(this) && requestCode == MOVIE_DETAIL_CODE) {
-            currentMovie = data.getParcelableExtra(getString(R.string.intent_key_moviedata));
-            switchDetailFragment(currentMovie);
+            try { // block to trace a non-reproducible null pointer exception
+                currentMovie = data.getParcelableExtra(getString(R.string.intent_key_moviedata));
+                switchDetailFragment(currentMovie);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -205,8 +241,8 @@ public class MainActivity extends AppCompatActivity implements
                 .getString(getString(R.string.pref_sorting_key), getString(R.string.pref_key_popularity));
         boolean orderIsChanged = !currentSortOrder.equals(newSortOrder);
 
-        if (movieAdapter.getItemCount() == 0 || orderIsChanged ||
-                currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+        if (orderIsChanged || currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+            // if sortorder is changed, or if is favourites list, load fetch new data
             currentSortOrder = newSortOrder;
 
             if (orderIsChanged) {
@@ -217,8 +253,37 @@ public class MainActivity extends AppCompatActivity implements
 
             getMovies();
 
+        } else if (movieAdapter.getItemCount() == 0){
+            // if adapter is empy..
+            if (currentMovieList != null) {
+                // .. and we have a save state, restore it
+                movieAdapter.swapList(currentMovieList);
+                gridLayoutManager.scrollToPosition(currentPosition);
+            } else getMovies(); // .. and no save state, fetch movies data
         }
+
     }
+
+//    public void getMovies() {
+//        switchLoadingStatus();
+//
+//        if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
+//            new MovieDbUtilities.LoadFavourites(this, this).execute();
+//        } else if (Utils.isOnline(this)) {
+//            URL fetchURL = null;
+//            try {
+//                fetchURL = new URL(
+//                        getString(R.string.builder_baseurl) +
+//                                currentSortOrder +
+//                                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
+//                                getString(R.string.builder_language) + getString(R.string.builder_lang_enus) +
+//                                getString(R.string.builder_page) + page);
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            }
+//            new MovieDbUtilities.RequestToMovieDB(this, this).execute(fetchURL);
+//        }
+//    }
 
     public void getMovies() {
         switchLoadingStatus();
@@ -226,18 +291,49 @@ public class MainActivity extends AppCompatActivity implements
         if (currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
             new MovieDbUtilities.LoadFavourites(this, this).execute();
         } else if (Utils.isOnline(this)) {
-            URL fetchURL = null;
-            try {
-                fetchURL = new URL(
-                        getString(R.string.builder_baseurl) +
-                                currentSortOrder +
-                                getString(R.string.builder_apikey) + getString(R.string.movieDB_API_v3) +
-                                getString(R.string.builder_language) + getString(R.string.builder_lang_enus) +
-                                getString(R.string.builder_page) + page);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            new MovieDbUtilities.RequestToMovieDB(this, this).execute(fetchURL);
+            final Call<MovieContainer> movieRequest = ApiClient.getMovies(
+                    currentSortOrder, getString(R.string.movieDB_API_v3), String.valueOf(page));
+            movieRequest.enqueue(new Callback<MovieContainer>() {
+                @Override
+                public void onResponse(Call<MovieContainer> call, Response<MovieContainer> response) {
+                    List<Movie> movies = formatMovies(response.body().getMovies());
+                    if (isLoadingMoreMovies) {
+                        isLoadingMoreMovies = false;
+                        movieAdapter.moviesList.addAll(movies);
+                        movieAdapter.notifyItemRangeInserted(
+                                movieAdapter.getItemCount() - 1, movies.size());
+                    } else movieAdapter.swapList(movies);
+
+                    switchLoadingStatus();
+                }
+
+                private List<Movie> formatMovies(List<Movie> movies) {
+                    List<Movie> formattedList = new ArrayList<Movie>(0);
+                    for (int i = 0; i < movies.size(); i++) {
+                        Movie movie = movies.get(i);
+                        movie.setImageLink(
+                                getString(R.string.builder_image_baseurl) +
+                                getString(R.string.builder_image_quality_medium) +
+                                movie.getImageLink());
+                        movie.setOriginalTitle(
+                                getString(R.string.original_title_split) +
+                                getString(R.string.newline) +
+                                movie.getOriginalTitle());
+                        movie.setReleaseDate(
+                                getString(R.string.release_split) +
+                                getString(R.string.newline) +
+                                MovieDbUtilities.formatStringDate(movie.getReleaseDate()));
+                        formattedList.add(movie);
+                    }
+                    return formattedList;
+                }
+
+                @Override
+                public void onFailure(Call<MovieContainer> call, Throwable t) {
+                    t.printStackTrace();
+                    switchLoadingStatus();
+                }
+            });
         }
     }
 
@@ -315,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements
                 int totalItems = gridLayoutManager.getItemCount();
                 if ( !isLoadingMoreMovies && !currentSortOrder.equals(getString(R.string.pref_key_favourites))) {
                     if ((lastVisible >= (totalItems - 5) || lastVisible == totalItems)) {
-                        Log.d("Scrolled to" , String.valueOf(lastVisible));
+//                        Log.d("Scrolled to" , String.valueOf(lastVisible));
                         isLoadingMoreMovies = true; //flag needed to prevent multiple parallel executions
                         page++;
                         getMovies();

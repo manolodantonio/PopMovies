@@ -57,8 +57,11 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerViewHolder> {
         String site = trailer.getSite();
 
         if (trailer.getSite().equals(context.getString(R.string.jsvalue_youtube))){
+            String thumbnail = context.getString(R.string.builder_base_youtube_image) +
+                            trailer.getKey() +
+                            context.getString(R.string.builer_youimage_quality0);
             Picasso.with(context)
-                    .load(trailer.getThumbnail())
+                    .load(thumbnail)
                     .resize(THUMB_WIDTH, THUMB_HEIGHT)
                     .centerCrop()
                     .into(holder.binding.ivTrailerSiteIcon);

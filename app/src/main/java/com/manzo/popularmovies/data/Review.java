@@ -3,6 +3,9 @@ package com.manzo.popularmovies.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Manolo on 08/02/2017.
  */
@@ -79,4 +82,7 @@ public class Review implements Parcelable {
     }
 
 
+
 }
+
+

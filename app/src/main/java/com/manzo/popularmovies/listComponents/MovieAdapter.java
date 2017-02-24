@@ -23,7 +23,11 @@ import java.util.List;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
+
+
     public List<Movie> moviesList;
+
+
 
     public interface MovieItemClickListener {
         void onMovieItemClick (int clickedItemIndex);
@@ -93,6 +97,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
         Picasso.with(context)
                 .load(movieData.getImageLink())
                 .into(holder.iv_poster);
+    }
+
+    public List<Movie> getMoviesList() {
+        return moviesList;
     }
 
 

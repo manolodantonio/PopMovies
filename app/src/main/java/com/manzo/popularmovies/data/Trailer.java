@@ -7,30 +7,20 @@ package com.manzo.popularmovies.data;
 public class Trailer {
 
     private String key;
-    private String title;
+    private String name;
     private String type;
     private String site;
 
 
-    private String thumbnail;
-
-    public Trailer(String key, String title, String type, String site, String thumbnail) {
+    public Trailer(String key, String name, String type, String site) {
         this.key = key;
-        this.title = title;
+        this.name = name;
         this.type = type;
         this.site = site;
-        this.thumbnail = thumbnail;
     }
 
 
 
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-    }
 
     public String getSite() {
         return site;
@@ -56,12 +46,12 @@ public class Trailer {
         this.key = key;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
 }
